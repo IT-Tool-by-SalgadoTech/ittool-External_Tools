@@ -1,0 +1,50 @@
+
+
+Sat Aug  9 02:46:21 2025
+Command line: TestDisk
+
+TestDisk 7.3-WIP, Data Recovery Utility, April 2025
+Christophe GRENIER <grenier@cgsecurity.org>
+https://www.cgsecurity.org
+OS: Windows 8 (9200)
+Compiler: GCC 12.4, Cygwin32 3003.3
+ext2fs lib: 1.45.3, ntfs lib: available, reiserfs lib: none, ewf lib: 20140608, curses lib: ncurses 6.1
+disk_get_size_win32 IOCTL_DISK_GET_LENGTH_INFO(\\.\PhysicalDrive0)=1000204886016
+disk_get_size_win32 IOCTL_DISK_GET_LENGTH_INFO(\\.\PhysicalDrive1)=512110190592
+disk_get_size_win32 IOCTL_DISK_GET_LENGTH_INFO(\\.\C:)=510770806784
+Hard disk list
+Disk \\.\PhysicalDrive0 - 1000 GB / 931 GiB - CHS 121601 255 63, sector size=512 - WDC WD10SPSX-08A6W, S/N:WD-WX81E4983LM0, FW:01.01A01
+Disk \\.\PhysicalDrive1 - 512 GB / 476 GiB - CHS 62260 255 63, sector size=512 - SAMSUNG MZVLB512HBJQ-000L2, S/N:0025_3885_01D6_EECC., FW:3L1QEXF7
+
+Partition table type defaults to Intel
+Disk \\.\PhysicalDrive0 - 1000 GB / 931 GiB - WDC WD10SPSX-08A6W
+Partition table type: Intel
+
+Analyse Disk \\.\PhysicalDrive0 - 1000 GB / 931 GiB - CHS 121601 255 63
+Current partition structure:
+
+Partition sector doesn't have the endmark 0xAA55
+
+search_part()
+Disk \\.\PhysicalDrive0 - 1000 GB / 931 GiB - CHS 121601 255 63
+NTFS at 2/10/9
+filesystem size           1953490944
+sectors_per_cluster       8
+mft_lcn                   786432
+mftmirr_lcn               2
+clusters_per_mft_record   -10
+clusters_per_index_record 1
+     HPFS - NTFS              2  10  9 121601  57 56 1953490944
+     NTFS, blocksize=4096, 1000 GB / 931 GiB
+
+Results
+   * HPFS - NTFS              2  10  9 121601  57 56 1953490944
+     NTFS, blocksize=4096, 1000 GB / 931 GiB
+$MFT has invalid magic.
+ntfs_mft_load(): Failed.
+Failed to load $MFT: Input/output error.
+Failed to startup volume: Input/output error.
+$MFT has invalid magic.
+ntfs_mft_load(): Failed.
+Failed to load $MFT: Input/output error.
+Failed to startup volume: Input/output error.
