@@ -14,12 +14,18 @@ $vmwareServices = @(
     'VMwareGraphicsService',
     'VMware USB Arbitration Service','VMUSBArbService',
     'VMwareViewAgent', 'VMwareViewComposerGA', 'VMwareViewComposer', 'VMwareViewPersona',
-    'VMwareViewLogon' # si existen
+    'VMwareViewLogon'           # si existen
 )
 
 # Detectar nombres reales que contengan 'VMware' (más seguro que lista fija)
-$detected = Get-Service | Where-Object { $_.Name -like '*VMware*' -or $_.DisplayName -like '*VMware*' } | Select-Object -ExpandProperty Name -ErrorAction SilentlyContinue
+$detected = Get-Service | Where-Object { $_.Name -like '*VMware*' -or $_.DisplayName -like '*VMware*' } |
+            Select-Object -ExpandProperty Name -ErrorAction SilentlyContinue
 $targets = ($vmwareServices + $detected) | Sort-Object -Unique
+
+if (-not $targets -or $targets.Count -eq 0) {
+    Write-Host "No se encontraron servicios de VMware en este equipo."
+    return
+}
 
 if ($Mode -eq 'stop') {
     foreach ($s in $targets) {
@@ -32,7 +38,7 @@ if ($Mode -eq 'stop') {
             Write-Host "Setting $s startup to Disabled..."
             Set-Service -Name $s -StartupType Disabled
         } catch {
-            Write-Host "No encontrado o error con $s: $($_.Exception.Message)"
+            Write-Host "No encontrado o error con $($s): $($_.Exception.Message)"
         }
     }
     Write-Host "Hecho. Reinicia el PC para asegurar que los controladores se descarguen."
@@ -43,7 +49,7 @@ if ($Mode -eq 'stop') {
             Set-Service -Name $s -StartupType Manual
             Start-Service -Name $s -ErrorAction SilentlyContinue
         } catch {
-            Write-Host "No encontrado o error con $s: $($_.Exception.Message)"
+            Write-Host "No encontrado o error con $($s): $($_.Exception.Message)"
         }
     }
     Write-Host "Hecho: servicios intentados para restaurar."
