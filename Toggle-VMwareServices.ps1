@@ -2,7 +2,7 @@
 param(
     [Parameter(Mandatory=$true)]
     [ValidateSet('stop','start')]
-    [string]$Mode
+    [string]$mode_star_or_stop
 )
 
 # Lista de servicios comunes de VMware que suelen instalarse en Horizon/Tools
