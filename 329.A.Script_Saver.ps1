@@ -104,7 +104,7 @@ while ([string]::IsNullOrWhiteSpace($targetFolder)) {
         "7"  { $targetFolder = "G. External_links_tools" }
         "8"  { $targetFolder = "H. Nmap" }
         "9"  { $targetFolder = "I. Linux and Kali" }
-        "0"  { $targetFolder = (Read-Host "Enter folder name").Trim() }
+        "0"  { $targetFolder = "Custom" }
         default { Write-Host "  Invalid option." -ForegroundColor Yellow }
     }
 }
@@ -167,16 +167,20 @@ if ([string]::IsNullOrWhiteSpace($userText)) {
 $nl = "`n"
 
 if ($systemType -eq "PowerShellAdmin") {
-    # Opens PowerShell as Administrator via Run dialog + UAC confirm (LEFT+ENTER)
-    # Uses -EncodedCommand (Base64 UTF-16LE) so the entire script sends in one line —
-    # avoids PowerShell interactive >> mode with multi-line blocks like functions and if/try.
+    # Step 1: Open normal PowerShell via Run (short — safe for Run 260-char limit)
+    # Step 2: Inside console, STRINGLN sends Start-Process -EncodedCommand
+    # -EncodedCommand (Base64 UTF-16LE) sends full script in one line — no >> mode.
     $utf16  = [System.Text.Encoding]::Unicode.GetBytes($userText)
     $b64    = [Convert]::ToBase64String($utf16)
     $duck   = 'DELAY 1000' + $nl +
               'GUI r' + $nl +
               'DELAY 1000' + $nl +
-              'STRING powershell -Command "Start-Process powershell -Verb RunAs -ArgumentList ''-EncodedCommand ' + $b64 + '''"' + $nl +
+              'STRING powershell' + $nl +
               'ENTER' + $nl +
+              'DELAY 2000' + $nl +
+              'STRINGLN' + $nl +
+              'Start-Process powershell -Verb RunAs -ArgumentList "-EncodedCommand ' + $b64 + '"' + $nl +
+              'END_STRINGLN' + $nl +
               'DELAY 3000' + $nl +
               'LEFT' + $nl +
               'ENTER'
@@ -196,15 +200,19 @@ elseif ($systemType -eq "CMDAdmin") {
     $duck = $header + $userText + $nl + 'END_STRINGLN' + $nl + 'ENTER'
 }
 elseif ($systemType -eq "PowerShell") {
-    # Opens PowerShell normal (no UAC)
-    # Uses -EncodedCommand (Base64 UTF-16LE) — same reason as PowerShell Admin.
+    # Opens normal PowerShell via Run, then STRINGLN sends -EncodedCommand inside console
+    # -EncodedCommand (Base64 UTF-16LE) sends full script in one line — no >> mode.
     $utf16  = [System.Text.Encoding]::Unicode.GetBytes($userText)
     $b64    = [Convert]::ToBase64String($utf16)
     $duck   = 'DELAY 1000' + $nl +
               'GUI r' + $nl +
               'DELAY 1000' + $nl +
-              'STRING powershell -EncodedCommand ' + $b64 + $nl +
-              'ENTER'
+              'STRING powershell' + $nl +
+              'ENTER' + $nl +
+              'DELAY 2000' + $nl +
+              'STRINGLN' + $nl +
+              'powershell -EncodedCommand ' + $b64 + $nl +
+              'END_STRINGLN'
 }
 elseif ($systemType -eq "CMD") {
     # Opens CMD normal (no UAC)
