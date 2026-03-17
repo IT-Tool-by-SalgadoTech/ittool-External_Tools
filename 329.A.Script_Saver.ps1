@@ -104,7 +104,7 @@ while ([string]::IsNullOrWhiteSpace($targetFolder)) {
         "7"  { $targetFolder = "G. External_links_tools" }
         "8"  { $targetFolder = "H. Nmap" }
         "9"  { $targetFolder = "I. Linux and Kali" }
-        "0"  { $targetFolder = "Custom" }
+        "0"  { $targetFolder = (Read-Host "Enter folder name").Trim() }
         default { Write-Host "  Invalid option." -ForegroundColor Yellow }
     }
 }
