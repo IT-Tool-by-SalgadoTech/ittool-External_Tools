@@ -8,6 +8,22 @@ Write-Host "======================================" -ForegroundColor Magenta
 Write-Host ""
 
 # ============================================================
+#  STEP 0 — CONNECT IT-TOOL
+#  The IT-Tool just launched this script via USB.
+#  The USB port is not yet visible to Windows.
+#  Reconnect the cable and set the IT-Tool to Script_Saver
+#  mode BEFORE pressing ENTER so the COM port is detected.
+# ============================================================
+Write-Host "Before continuing:" -ForegroundColor Yellow
+Write-Host "  1. Unplug the IT-Tool USB cable" -ForegroundColor White
+Write-Host "  2. Plug it back in" -ForegroundColor White
+Write-Host "  3. On the IT-Tool go to: ReadyUSB > Script_Saver" -ForegroundColor White
+Write-Host "  4. Wait until screen shows 'Waiting...'" -ForegroundColor White
+Write-Host "  5. Come back here and press ENTER" -ForegroundColor White
+Write-Host ""
+Read-Host "Press ENTER when IT-Tool shows 'Waiting...'"
+
+# ============================================================
 #  STEP 1 — DETECT COM PORT
 # ============================================================
 $comPort = ""
@@ -17,6 +33,7 @@ if ($availablePorts.Count -eq 0) {
     Read-Host "Press ENTER to close"
     exit
 }
+Write-Host ""
 Write-Host "Available COM ports:" -ForegroundColor Cyan
 for ($i = 0; $i -lt $availablePorts.Count; $i++) {
     Write-Host "  $($i + 1). $($availablePorts[$i])"
@@ -36,17 +53,18 @@ Write-Host ""
 
 # ============================================================
 #  STEP 2 — CONTROLLED RESET
+#  Opens and closes the port to trigger the ESP32 reset.
+#  The IT-Tool will reboot. While it boots, fill the form.
 # ============================================================
-Write-Host "Resetting IT-Tool..." -ForegroundColor Yellow
+Write-Host "IT-Tool reset, Please come back a second time to:" -ForegroundColor Yellow
 $portReset = New-Object System.IO.Ports.SerialPort $comPort, 115200, None, 8, One
 $portReset.DtrEnable = $false
 $portReset.RtsEnable = $false
 $portReset.Open()
 Start-Sleep -Milliseconds 400
 $portReset.Close()
-Write-Host "Done. Set IT-Tool to ReadyUSB > Script_Saver and wait 'Waiting...'" -ForegroundColor Green
+Write-Host "ReadyUSB > Script_Saver." -ForegroundColor Green
 Write-Host ""
-Read-Host "Press ENTER when IT-Tool shows 'Waiting...'"
 
 # ============================================================
 #  STEP 3 — FILE NAME
@@ -70,23 +88,23 @@ Write-Host "  6. F. App_Downloader"
 Write-Host "  7. G. External_links_tools"
 Write-Host "  8. H. Nmap"
 Write-Host "  9. I. Linux and Kali"
-Write-Host "  0. Custom"
+Write-Host "  0. Favorites"
 Write-Host ""
 
 $targetFolder = ""
 while ([string]::IsNullOrWhiteSpace($targetFolder)) {
     $fc = (Read-Host "Folder number").Trim()
     switch ($fc) {
-        "1" { $targetFolder = "A. Admin_And_Security" }
-        "2" { $targetFolder = "B. Networks" }
-        "3" { $targetFolder = "C. Folder_and_File_options" }
-        "4" { $targetFolder = "D. Storage" }
-        "5" { $targetFolder = "E. Monitoring" }
-        "6" { $targetFolder = "F. App_Downloader" }
-        "7" { $targetFolder = "G. External_links_tools" }
-        "8" { $targetFolder = "H. Nmap" }
-        "9" { $targetFolder = "I. Linux and Kali" }
-        "0" { $targetFolder = (Read-Host "Enter folder name").Trim() }
+        "1"  { $targetFolder = "A. Admin_And_Security" }
+        "2"  { $targetFolder = "B. Networks" }
+        "3"  { $targetFolder = "C. Folder_and_File_options" }
+        "4"  { $targetFolder = "D. Storage" }
+        "5"  { $targetFolder = "E. Monitoring" }
+        "6"  { $targetFolder = "F. App_Downloader" }
+        "7"  { $targetFolder = "G. External_links_tools" }
+        "8"  { $targetFolder = "H. Nmap" }
+        "9"  { $targetFolder = "I. Linux and Kali" }
+        "0"  { $targetFolder = "Favorites" }
         default { Write-Host "  Invalid option." -ForegroundColor Yellow }
     }
 }
@@ -117,7 +135,7 @@ if ([string]::IsNullOrWhiteSpace($userText)) {
 }
 
 # ============================================================
-#  STEP 6 — BUILD DUCKY SCRIPT (simple, no console launch)
+#  STEP 6 — BUILD THE DUCKY SCRIPT
 # ============================================================
 $nl   = "`n"
 $duck = 'DELAY 1000' + $nl +
@@ -126,7 +144,7 @@ $duck = 'DELAY 1000' + $nl +
         'END_STRINGLN'
 
 # ============================================================
-#  STEP 7 — ASSEMBLE PACKET
+#  STEP 7 — ASSEMBLE THE PACKET
 # ============================================================
 $packet = "FOLDER:$targetFolder`nNAME:$fileName`nDATA:`n$duck`nEND_SCRIPT_SAVER`n"
 $bytes  = [System.Text.Encoding]::UTF8.GetBytes($packet)
@@ -169,9 +187,9 @@ while ($offset -lt $total) {
 }
 
 Start-Sleep -Milliseconds 1500
-$port.Close()
 
+$port.Close()
 Write-Host ""
-Write-Host "Done! Script '$fileName' saved to ReadyUSB > $targetFolder" -ForegroundColor Green
+Write-Host "Done! Script '$fileName' sent to ReadyUSB > $targetFolder" -ForegroundColor Green
 Write-Host ""
 Read-Host "Press ENTER to close"
