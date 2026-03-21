@@ -79,32 +79,32 @@ while ([string]::IsNullOrWhiteSpace($fileName)) {
 # ============================================================
 Write-Host ""
 Write-Host "Choose destination folder:" -ForegroundColor Cyan
-Write-Host "  1. A. Admin_And_Security"
-Write-Host "  2. B. Networks"
-Write-Host "  3. C. Folder_and_File_options"
-Write-Host "  4. D. Storage"
-Write-Host "  5. E. Monitoring"
-Write-Host "  6. F. App_Downloader"
-Write-Host "  7. G. External_links_tools"
-Write-Host "  8. H. Nmap"
-Write-Host "  9. I. Linux and Kali"
-Write-Host "  0. Favorites"
+Write-Host "  1. B.Admin_And_Security"
+Write-Host "  2. C.Networks"
+Write-Host "  3. D.Folder_and_File_options"
+Write-Host "  4. E.Storage"
+Write-Host "  5. F. Monitoring"
+Write-Host "  6. Favorites"
+Write-Host "  7. G.App_Downloader"
+Write-Host "  8. H.External_links_tools"
+Write-Host "  9. I.Nmap"
+Write-Host "  0. J.Linux"
 Write-Host ""
 
 $targetFolder = ""
 while ([string]::IsNullOrWhiteSpace($targetFolder)) {
     $fc = (Read-Host "Folder number").Trim()
     switch ($fc) {
-        "1"  { $targetFolder = "A. Admin_And_Security" }
-        "2"  { $targetFolder = "B. Networks" }
-        "3"  { $targetFolder = "C. Folder_and_File_options" }
-        "4"  { $targetFolder = "D. Storage" }
-        "5"  { $targetFolder = "E. Monitoring" }
-        "6"  { $targetFolder = "F. App_Downloader" }
-        "7"  { $targetFolder = "G. External_links_tools" }
-        "8"  { $targetFolder = "H. Nmap" }
-        "9"  { $targetFolder = "I. Linux and Kali" }
-        "0"  { $targetFolder = "Favorites" }
+        "1"  { $targetFolder = "B.Admin_And_Security" }
+        "2"  { $targetFolder = "C.Networks" }
+        "3"  { $targetFolder = "D.Folder_and_File_options" }
+        "4"  { $targetFolder = "E.Storage" }
+        "5"  { $targetFolder = "F. Monitoring" }
+        "6"  { $targetFolder = "Favorites" }
+        "7"  { $targetFolder = "G.App_Downloader" }
+        "8"  { $targetFolder = "H.External_links_tools" }
+        "9"  { $targetFolder = "I.Nmap" }
+        "0"  { $targetFolder = "J.Linux" }
         default { Write-Host "  Invalid option." -ForegroundColor Yellow }
     }
 }
