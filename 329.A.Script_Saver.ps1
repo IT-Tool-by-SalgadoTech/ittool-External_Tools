@@ -75,44 +75,96 @@ while ([string]::IsNullOrWhiteSpace($fileName)) {
 }
 
 # ============================================================
-#  STEP 4 — DESTINATION FOLDER
+#  STEP 4 — SYSTEM SELECTION (Windows or Linux)
 # ============================================================
 Write-Host ""
-Write-Host "Choose destination folder:" -ForegroundColor Cyan
-Write-Host "  1. B.Admin_And_Security"
-Write-Host "  2. C.Networks"
-Write-Host "  3. D.Folder_and_File_options"
-Write-Host "  4. E.Storage"
-Write-Host "  5. F. Monitoring"
-Write-Host "  6. G.App_Downloader"
-Write-Host "  7. H.External_links_tools"
-Write-Host "  8. I.Nmap"
-Write-Host "  9. J.Linux"
-Write-Host "  0. Favorites"
+Write-Host "Choose system:" -ForegroundColor Cyan
+Write-Host "  1. Windows"
+Write-Host "  2. Linux"
 Write-Host ""
 
-$targetFolder = ""
-while ([string]::IsNullOrWhiteSpace($targetFolder)) {
-    $fc = (Read-Host "Folder number").Trim()
-    switch ($fc) {
-        "1"  { $targetFolder = "B.Admin_And_Security" }
-        "2"  { $targetFolder = "C.Networks" }
-        "3"  { $targetFolder = "D.Folder_and_File_options" }
-        "4"  { $targetFolder = "E.Storage" }
-        "5"  { $targetFolder = "F. Monitoring" }
-        "6"  { $targetFolder = "G.App_Downloader" }
-        "7"  { $targetFolder = "H.External_links_tools" }
-        "8"  { $targetFolder = "I.Nmap" }
-        "9"  { $targetFolder = "J.Linux" }
-        "0"  { $targetFolder = "Favorites" }
+$system = ""
+while ([string]::IsNullOrWhiteSpace($system)) {
+    $sc = (Read-Host "System number").Trim()
+    switch ($sc) {
+        "1" { $system = "Windows" }
+        "2" { $system = "Linux" }
         default { Write-Host "  Invalid option." -ForegroundColor Yellow }
     }
 }
+Write-Host "System: $system" -ForegroundColor Green
+Write-Host ""
 
 # ============================================================
-#  STEP 5 — PASTE YOUR SCRIPT
+#  STEP 5 — DESTINATION FOLDER (depends on system)
 # ============================================================
+Write-Host "Choose destination folder:" -ForegroundColor Cyan
+
+$targetFolder = ""
+
+if ($system -eq "Windows") {
+    Write-Host "  1. A.Admin_And_Security"
+    Write-Host "  2. B.Networks"
+    Write-Host "  3. C.Folder_and_Files"
+    Write-Host "  4. D.Storage"
+    Write-Host "  5. E. Monitoring"
+    Write-Host "  6. F.External_links_tools"
+    Write-Host "  7. G.Nmap"
+    Write-Host "  8. H.App_Downloader"
+    Write-Host "  0. Favorites"
+    Write-Host ""
+
+    while ([string]::IsNullOrWhiteSpace($targetFolder)) {
+        $fc = (Read-Host "Folder number").Trim()
+        switch ($fc) {
+            "1" { $targetFolder = "B.Windows\A.Admin_And_Security" }
+            "2" { $targetFolder = "B.Windows\B.Networks" }
+            "3" { $targetFolder = "B.Windows\C.Folder_and_Files" }
+            "4" { $targetFolder = "B.Windows\D.Storage" }
+            "5" { $targetFolder = "B.Windows\E. Monitoring" }
+            "6" { $targetFolder = "B.Windows\F.External_links_tools" }
+            "7" { $targetFolder = "B.Windows\G.Nmap" }
+            "8" { $targetFolder = "B.Windows\H.App_Downloader" }
+            "0" { $targetFolder = "Favorites" }
+            default { Write-Host "  Invalid option." -ForegroundColor Yellow }
+        }
+    }
+}
+elseif ($system -eq "Linux") {
+    Write-Host "  1. A.Admin_And_Security"
+    Write-Host "  2. B.Networks"
+    Write-Host "  3. C.Folders_and_Files"
+    Write-Host "  4. D.Storage"
+    Write-Host "  5. E.Monitoring"
+    Write-Host "  6. F.External_links_tools"
+    Write-Host "  7. G.Nmap"
+    Write-Host "  8. H.Kali_Linux"
+    Write-Host "  0. Favorites"
+    Write-Host ""
+
+    while ([string]::IsNullOrWhiteSpace($targetFolder)) {
+        $fc = (Read-Host "Folder number").Trim()
+        switch ($fc) {
+            "1" { $targetFolder = "C.Linux\A.Admin_And_Security" }
+            "2" { $targetFolder = "C.Linux\B.Networks" }
+            "3" { $targetFolder = "C.Linux\C.Folders_and_Files" }
+            "4" { $targetFolder = "C.Linux\D.Storage" }
+            "5" { $targetFolder = "C.Linux\E.Monitoring" }
+            "6" { $targetFolder = "C.Linux\F.External_links_tools" }
+            "7" { $targetFolder = "C.Linux\G.Nmap" }
+            "8" { $targetFolder = "C.Linux\H.Kali_Linux" }
+            "0" { $targetFolder = "Favorites" }
+            default { Write-Host "  Invalid option." -ForegroundColor Yellow }
+        }
+    }
+}
+
+Write-Host "Destination: $targetFolder" -ForegroundColor Green
 Write-Host ""
+
+# ============================================================
+#  STEP 6 — PASTE YOUR SCRIPT
+# ============================================================
 Write-Host "Paste your script below." -ForegroundColor Cyan
 Write-Host "When finished type exactly:  ITTOOL  and press Enter" -ForegroundColor Yellow
 Write-Host ""
@@ -135,7 +187,7 @@ if ([string]::IsNullOrWhiteSpace($userText)) {
 }
 
 # ============================================================
-#  STEP 6 — BUILD THE DUCKY SCRIPT
+#  STEP 7 — BUILD THE DUCKY SCRIPT
 # ============================================================
 $nl   = "`n"
 $duck = 'DELAY 1000' + $nl +
@@ -144,7 +196,7 @@ $duck = 'DELAY 1000' + $nl +
         'END_STRINGLN'
 
 # ============================================================
-#  STEP 7 — ASSEMBLE THE PACKET
+#  STEP 8 — ASSEMBLE THE PACKET
 # ============================================================
 $packet = "FOLDER:$targetFolder`nNAME:$fileName`nDATA:`n$duck`nEND_SCRIPT_SAVER`n"
 $bytes  = [System.Text.Encoding]::UTF8.GetBytes($packet)
@@ -153,7 +205,7 @@ Write-Host ""
 Write-Host "Packet size: $($bytes.Length) bytes" -ForegroundColor Cyan
 
 # ============================================================
-#  STEP 8 — SEND
+#  STEP 9 — SEND
 # ============================================================
 Write-Host ""
 Write-Host "Sending to IT-Tool..." -ForegroundColor Yellow
