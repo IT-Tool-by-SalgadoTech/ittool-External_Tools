@@ -271,9 +271,7 @@ def main():
     waiting_text   = True
     last_frame_ref = None
 
-    print(f"Window: {WIN_W}x{WIN_H}  Scale: {scale}x")
-    print("Waiting for IT-Tool to enter PC_Mirror mode...")
-    print("Press B on IT-Tool or close this window to exit.")
+    print("Go to IT-Tool Menu and Select Mirror on with A.")
 
     running = True
     while running:
