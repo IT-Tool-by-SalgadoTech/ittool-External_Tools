@@ -83,8 +83,8 @@ while ([string]::IsNullOrWhiteSpace($fileName)) {
 # ============================================================
 Write-Host ""
 Write-Host "What type of script are you saving?" -ForegroundColor Cyan
-Write-Host "  1. Windows (STRINGLN)"
-Write-Host "  2. Linux (base64)"
+Write-Host "  1. Windows"
+Write-Host "  2. Linux"
 Write-Host ""
 
 $scriptType = ""
