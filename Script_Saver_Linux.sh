@@ -94,8 +94,8 @@ done
 # ============================================================
 echo ""
 echo -e "\e[36mWhat type of script are you saving?\e[0m"
-echo "  1. Windows (STRINGLN)"
-echo "  2. Linux (base64)"
+echo "  1. Windows"
+echo "  2. Linux"
 echo ""
 
 SCRIPT_TYPE=""
