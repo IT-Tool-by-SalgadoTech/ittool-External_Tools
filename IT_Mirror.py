@@ -271,7 +271,7 @@ def main():
     waiting_text   = True
     last_frame_ref = None
 
-    print("Go to IT-Tool Menu and Select Mirror on with A.")
+    print("Go to IT-Tool Menu and Select PC_Mirror with A.")
 
     running = True
     while running:
