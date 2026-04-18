@@ -46,6 +46,22 @@ HDR_MAGIC    = bytes([0xFF, 0xAA])
 FTR_MAGIC    = bytes([0xFF, 0xBB])
 HEADER_SIZE  = 6                         # 0xFF 0xAA W_hi W_lo H_hi H_lo
 
+def safe_input(prompt=""):
+    try:
+        return input(prompt)
+    except EOFError:
+        pass
+    try:
+        import os
+        if os.name == "nt":
+            sys.stdin = open("CON", "r")
+        else:
+            sys.stdin = open("/dev/tty", "r")
+        return input(prompt)
+    except Exception:
+        print("")
+        return ""
+
 # ── Auto-detect / selector interactivo de puerto ─────────────────────────────
 def list_serial_ports():
     ports = []
@@ -75,10 +91,10 @@ def select_port_interactive():
 
     while True:
         try:
-            raw = input("Elige un número: ").strip()
+            raw = safe_input("Elige un número: ").strip()
             n = int(raw)
             if n == 0:
-                manual = input("Puerto (ej: COM10 o /dev/ttyACM0): ").strip()
+                manual = safe_input("Puerto (ej: COM10 o /dev/ttyACM0): ").strip()
                 if manual:
                     return manual
             elif 1 <= n <= len(ports):
@@ -100,15 +116,27 @@ def rgb565_to_rgb888(px):
 class FrameReceiver(threading.Thread):
     def __init__(self, port, baud):
         super().__init__(daemon=True)
-        self.port     = port
-        self.baud     = baud
-        self.frame    = None          # latest complete frame (list of RGB tuples)
-        self.lock     = threading.Lock()
-        self.running  = True
-        self.fps      = 0
-        self._fps_cnt = 0
-        self._fps_ts  = time.time()
-        self.error    = None
+        self.port          = port
+        self.baud          = baud
+        self.frame         = None
+        self.lock          = threading.Lock()
+        self.running       = True
+        self.fps           = 0
+        self._fps_cnt      = 0
+        self._fps_ts       = time.time()
+        self.error         = None
+        self._ser          = None
+        self._ser_lock     = threading.Lock()
+        self.runner_active = False    # True while ESP32 is executing a script
+
+    def send_cmd(self, cmd):
+        """Send CMD:<cmd> to the ESP32. Thread-safe."""
+        with self._ser_lock:
+            if self._ser and self._ser.is_open:
+                try:
+                    self._ser.write(f"CMD:{cmd}\n".encode())
+                except Exception:
+                    pass
 
     def run(self):
         try:
@@ -116,6 +144,9 @@ class FrameReceiver(threading.Thread):
         except serial.SerialException as e:
             self.error = str(e)
             return
+
+        with self._ser_lock:
+            self._ser = ser
 
         buf = bytearray()
 
@@ -130,10 +161,25 @@ class FrameReceiver(threading.Thread):
                 while True:
                     idx = buf.find(HDR_MAGIC)
                     if idx == -1:
-                        # Keep last byte in case it's start of next header
+                        # Parse any STATE: text before discarding
+                        text = buf.decode("utf-8", errors="ignore")
+                        for line in text.splitlines():
+                            line = line.strip()
+                            if line == "STATE:RUNNING":
+                                self.runner_active = True
+                            elif line == "STATE:IDLE":
+                                self.runner_active = False
                         buf = buf[-1:]
                         break
                     if idx > 0:
+                        # Parse STATE: text before the header
+                        pre = buf[:idx].decode("utf-8", errors="ignore")
+                        for line in pre.splitlines():
+                            line = line.strip()
+                            if line == "STATE:RUNNING":
+                                self.runner_active = True
+                            elif line == "STATE:IDLE":
+                                self.runner_active = False
                         buf = buf[idx:]
 
                     # Need at least header + pixels + footer
@@ -207,14 +253,14 @@ def main():
         print("  1. Unplug the IT-Tool USB cable")
         print("  2. Plug it back in")
         print("")
-        input("Come back here and press ENTER...")
+        safe_input("Come back here and press ENTER...")
         print("")
 
         # Detectar puertos disponibles tras el reconectar
         ports = list_serial_ports()
         if not ports:
             print("No COM ports detected. Check IT-Tool USB connection.")
-            input("Press ENTER to close.")
+            safe_input("Press ENTER to close.")
             sys.exit(1)
 
         print("Available ports:")
@@ -225,16 +271,16 @@ def main():
         # Si solo hay uno, preguntar confirmación
         if len(ports) == 1:
             print(f"Only one port found: {ports[0][0]}")
-            ans = input("Use it? [Y/n]: ").strip().lower()
+            ans = safe_input("Use it? [Y/n]: ").strip().lower()
             if ans in ("", "y", "s"):
                 port = ports[0][0]
             else:
-                input("Connect the IT-Tool and restart the script. Press ENTER to close.")
+                safe_input("Connect the IT-Tool and restart the script. Press ENTER to close.")
                 sys.exit(0)
         else:
             while True:
                 try:
-                    n = int(input("Select port number: ").strip())
+                    n = int(safe_input("Select port number: ").strip())
                     if 1 <= n <= len(ports):
                         port = ports[n-1][0]
                         break
@@ -282,6 +328,20 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
+
+            # ── Mouse → CMD: al ESP32 (solo si runner NO corriendo) ──
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if not receiver.runner_active:
+                    if event.button == 3:    # click derecho → A (Select/Run)
+                        receiver.send_cmd("A")
+                    elif event.button == 1:  # click izquierdo → B (Back)
+                        receiver.send_cmd("B")
+            elif event.type == pygame.MOUSEWHEEL:
+                if not receiver.runner_active:
+                    if event.y > 0:
+                        receiver.send_cmd("UP")
+                    elif event.y < 0:
+                        receiver.send_cmd("DOWN")
 
         # ── Check receiver error ──────────────────────────────────────────────
         if receiver.error:
@@ -335,6 +395,11 @@ def main():
         # FPS overlay (top-right corner)
         fps_txt = font.render(f"{receiver.fps} fps", True, (253, 160, 32))
         screen.blit(fps_txt, (WIN_W - fps_txt.get_width() - 6, 4))
+
+        # Runner activo — indicador top-left
+        if receiver.runner_active:
+            run_txt = font.render("RUNNING - mouse frozen", True, (255, 80, 80))
+            screen.blit(run_txt, (6, 4))
 
         pygame.display.flip()
         clock.tick(60)
