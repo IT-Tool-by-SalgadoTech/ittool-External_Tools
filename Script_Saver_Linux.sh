@@ -136,29 +136,50 @@ echo "    17. G.Nmap"
 echo "    18. H.Kali_Linux"
 echo ""
 echo "   0. Favorites"
+echo "  19. New Folder"
 echo ""
 
 TARGET_FOLDER=""
 while [ -z "$TARGET_FOLDER" ]; do
     read -p "Folder number: " fc
     case "$fc" in
-        1)  TARGET_FOLDER="B.OS_System/A.Windows/B.Admin_And_Security" ;;
-        2)  TARGET_FOLDER="B.OS_System/A.Windows/C.Networks" ;;
-        3)  TARGET_FOLDER="B.OS_System/A.Windows/D.Folder_and_Files" ;;
-        4)  TARGET_FOLDER="B.OS_System/A.Windows/E.Storage" ;;
-        5)  TARGET_FOLDER="B.OS_System/A.Windows/F. Monitoring" ;;
-        6)  TARGET_FOLDER="B.OS_System/A.Windows/G.External_links_tools" ;;
-        7)  TARGET_FOLDER="B.OS_System/A.Windows/H.Nmap" ;;
-        8)  TARGET_FOLDER="B.OS_System/A.Windows/I.App_Downloader" ;;
-        11) TARGET_FOLDER="B.OS_System/B.Linux/A.Admin_And_Security" ;;
-        12) TARGET_FOLDER="B.OS_System/B.Linux/B.Networks" ;;
-        13) TARGET_FOLDER="B.OS_System/B.Linux/C.Folders_and_Files" ;;
-        14) TARGET_FOLDER="B.OS_System/B.Linux/D.Storage" ;;
-        15) TARGET_FOLDER="B.OS_System/B.Linux/E.Monitoring" ;;
-        16) TARGET_FOLDER="B.OS_System/B.Linux/F.External_links_tools" ;;
-        17) TARGET_FOLDER="B.OS_System/B.Linux/G.Nmap" ;;
-        18) TARGET_FOLDER="B.OS_System/B.Linux/H.Kali_Linux" ;;
+        1)  TARGET_FOLDER="A.OS_System/A.Windows/B.Admin_And_Security" ;;
+        2)  TARGET_FOLDER="A.OS_System/A.Windows/C.Networks" ;;
+        3)  TARGET_FOLDER="A.OS_System/A.Windows/D.Folder_and_Files" ;;
+        4)  TARGET_FOLDER="A.OS_System/A.Windows/E.Storage" ;;
+        5)  TARGET_FOLDER="A.OS_System/A.Windows/F. Monitoring" ;;
+        6)  TARGET_FOLDER="A.OS_System/A.Windows/G.External_links_tools" ;;
+        7)  TARGET_FOLDER="A.OS_System/A.Windows/H.Nmap" ;;
+        8)  TARGET_FOLDER="A.OS_System/A.Windows/I.App_Downloader" ;;
+        11) TARGET_FOLDER="A.OS_System/B.Linux/A.Admin_And_Security" ;;
+        12) TARGET_FOLDER="A.OS_System/B.Linux/B.Networks" ;;
+        13) TARGET_FOLDER="A.OS_System/B.Linux/C.Folders_and_Files" ;;
+        14) TARGET_FOLDER="A.OS_System/B.Linux/D.Storage" ;;
+        15) TARGET_FOLDER="A.OS_System/B.Linux/E.Monitoring" ;;
+        16) TARGET_FOLDER="A.OS_System/B.Linux/F.External_links_tools" ;;
+        17) TARGET_FOLDER="A.OS_System/B.Linux/G.Nmap" ;;
+        18) TARGET_FOLDER="A.OS_System/B.Linux/H.Kali_Linux" ;;
         0)  TARGET_FOLDER="Favorites" ;;
+        19)
+            NEW_FOLDER_NAME=""
+            while [ -z "$NEW_FOLDER_NAME" ]; do
+                read -p "New folder name: " NEW_FOLDER_NAME
+            done
+            echo ""
+            echo "  1. Windows"
+            echo "  2. Linux"
+            echo ""
+            OS_GROUP=""
+            while [ -z "$OS_GROUP" ]; do
+                read -p "Where to save it: " og
+                case "$og" in
+                    1) OS_GROUP="A.OS_System/A.Windows" ;;
+                    2) OS_GROUP="A.OS_System/B.Linux" ;;
+                    *) echo -e "\e[33m  Invalid option.\e[0m" ;;
+                esac
+            done
+            TARGET_FOLDER="${OS_GROUP}/${NEW_FOLDER_NAME}"
+            ;;
         *)  echo -e "\e[33m  Invalid option.\e[0m" ;;
     esac
 done
