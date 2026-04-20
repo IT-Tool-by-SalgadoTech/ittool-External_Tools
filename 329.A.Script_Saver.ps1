@@ -125,61 +125,14 @@ Write-Host "    17. G.Nmap"
 Write-Host "    18. H.Kali_Linux"
 Write-Host ""
 Write-Host "    0. Favorites"
-Write-Host "   00. New Folder" -ForegroundColor Yellow
+Write-Host "   19. New Folder" -ForegroundColor Yellow
 Write-Host ""
 
-$targetFolder = ""
+$targetFolder    = ""
+$newFolderName   = ""
+$newFolderGroup  = ""
 while ([string]::IsNullOrWhiteSpace($targetFolder)) {
     $fc = (Read-Host "Folder number").Trim()
-
-    # ── NEW FOLDER (handled before switch) ──────────────────────
-    if ($fc -eq "00") {
-        Write-Host ""
-        Write-Host "New Folder — choose group:" -ForegroundColor Cyan
-        Write-Host "  1. Windows"
-        Write-Host "  2. Linux"
-        Write-Host "  3. Favorites"
-        Write-Host ""
-        $mkGroup = ""
-        while ([string]::IsNullOrWhiteSpace($mkGroup)) {
-            $mg = (Read-Host "Group").Trim()
-            switch ($mg) {
-                "1" { $mkGroup = "B.OS_System/A.Windows" }
-                "2" { $mkGroup = "B.OS_System/B.Linux" }
-                "3" { $mkGroup = "Favorites" }
-                default { Write-Host "  Invalid option." -ForegroundColor Yellow }
-            }
-        }
-        $mkName = ""
-        while ([string]::IsNullOrWhiteSpace($mkName)) {
-            $mkName = (Read-Host "New folder name").Trim()
-            $mkName = $mkName -replace ' ','_'
-        }
-        $mkPath   = if ($mkGroup -eq "Favorites") { "Favorites/$mkName" } else { "$mkGroup/$mkName" }
-        $mkPacket = "MKDIR:$mkPath`nEND_SCRIPT_SAVER`n"
-        $mkBytes  = [System.Text.Encoding]::UTF8.GetBytes($mkPacket)
-
-        Write-Host ""
-        Write-Host "Creating folder: $mkPath" -ForegroundColor Yellow
-
-        $portMk = New-Object System.IO.Ports.SerialPort $comPort, 115200, None, 8, One
-        $portMk.DtrEnable    = $false
-        $portMk.RtsEnable    = $false
-        $portMk.Encoding     = [System.Text.Encoding]::UTF8
-        $portMk.WriteTimeout = 5000
-        $portMk.Open()
-        Start-Sleep -Milliseconds 500
-        $portMk.BaseStream.Write($mkBytes, 0, $mkBytes.Length)
-        $portMk.BaseStream.Flush()
-        Start-Sleep -Milliseconds 1500
-        $portMk.Close()
-
-        Write-Host "Done! Folder '$mkName' created in $mkGroup" -ForegroundColor Green
-        Write-Host ""
-        Read-Host "Press ENTER to close"
-        exit
-    }
-
     switch ($fc) {
         "1"  { $targetFolder = "B.OS_System/A.Windows/B.Admin_And_Security" }
         "2"  { $targetFolder = "B.OS_System/A.Windows/C.Networks" }
@@ -198,6 +151,28 @@ while ([string]::IsNullOrWhiteSpace($targetFolder)) {
         "17" { $targetFolder = "B.OS_System/B.Linux/G.Nmap" }
         "18" { $targetFolder = "B.OS_System/B.Linux/H.Kali_Linux" }
         "0"  { $targetFolder = "Favorites" }
+        "19" {
+            $newFolderName = ""
+            while ([string]::IsNullOrWhiteSpace($newFolderName)) {
+                $newFolderName = (Read-Host "New folder name").Trim()
+                $newFolderName = $newFolderName -replace ' ','_'
+            }
+            Write-Host ""
+            Write-Host "Choose group:" -ForegroundColor Cyan
+            Write-Host "  1. Windows"
+            Write-Host "  2. Linux"
+            Write-Host ""
+            $newFolderGroup = ""
+            while ([string]::IsNullOrWhiteSpace($newFolderGroup)) {
+                $mg = (Read-Host "Group").Trim()
+                switch ($mg) {
+                    "1" { $newFolderGroup = "B.OS_System/A.Windows" }
+                    "2" { $newFolderGroup = "B.OS_System/B.Linux" }
+                    default { Write-Host "  Invalid option." -ForegroundColor Yellow }
+                }
+            }
+            $targetFolder = "$newFolderGroup/$newFolderName"
+        }
         default { Write-Host "  Invalid option." -ForegroundColor Yellow }
     }
 }
@@ -262,6 +237,26 @@ Write-Host "Packet size: $($bytes.Length) bytes" -ForegroundColor Cyan
 # ============================================================
 Write-Host ""
 Write-Host "Sending to IT-Tool..." -ForegroundColor Yellow
+
+# ── Si es carpeta nueva, crear primero en la SD ──────────────
+if ($newFolderName -ne "") {
+    Write-Host "Creating new folder: $targetFolder" -ForegroundColor Yellow
+    $mkPacket = "MKDIR:$targetFolder`nEND_SCRIPT_SAVER`n"
+    $mkBytes  = [System.Text.Encoding]::UTF8.GetBytes($mkPacket)
+    $portMk   = New-Object System.IO.Ports.SerialPort $comPort, 115200, None, 8, One
+    $portMk.DtrEnable    = $false
+    $portMk.RtsEnable    = $false
+    $portMk.Encoding     = [System.Text.Encoding]::UTF8
+    $portMk.WriteTimeout = 5000
+    $portMk.Open()
+    Start-Sleep -Milliseconds 500
+    $portMk.BaseStream.Write($mkBytes, 0, $mkBytes.Length)
+    $portMk.BaseStream.Flush()
+    Start-Sleep -Milliseconds 2000
+    $portMk.Close()
+    Write-Host "Folder created. Sending script..." -ForegroundColor Green
+    Start-Sleep -Milliseconds 500
+}
 
 $port = New-Object System.IO.Ports.SerialPort $comPort, 115200, None, 8, One
 $port.NewLine      = "`n"
