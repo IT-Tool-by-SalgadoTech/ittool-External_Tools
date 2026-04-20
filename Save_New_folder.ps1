@@ -80,7 +80,7 @@ while ([string]::IsNullOrWhiteSpace($folderName)) {
 }
 
 # ============================================================
-#  STEP 4 — GROUP
+#  STEP 4 — GROUP (Windows / Linux)
 # ============================================================
 Write-Host ""
 Write-Host "Choose group:" -ForegroundColor Cyan
@@ -99,22 +99,30 @@ while ([string]::IsNullOrWhiteSpace($groupPath)) {
 }
 
 $targetFolder = "$groupPath/$folderName"
+Write-Host "Destination: $targetFolder" -ForegroundColor Green
 Write-Host ""
-Write-Host "Creating: $targetFolder" -ForegroundColor Yellow
 
 # ============================================================
-#  STEP 5 — BUILD PACKET (same format as Script_Saver)
+#  STEP 5 — BUILD THE DUCKY SCRIPT
 # ============================================================
-$nl     = "`n"
-$duck   = "DELAY 1"
-$packet = "FOLDER:$targetFolder${nl}NAME:.keep${nl}DATA:${nl}${duck}${nl}END_SCRIPT_SAVER${nl}"
+$nl   = "`n"
+$duck = 'DELAY 1000' + $nl +
+        'STRINGLN' + $nl +
+        'REM folder placeholder' + $nl +
+        'END_STRINGLN'
+
+# ============================================================
+#  STEP 6 — ASSEMBLE THE PACKET
+# ============================================================
+$fileName = ".keep"
+$packet = "FOLDER:$targetFolder`nNAME:$fileName`nDATA:`n$duck`nEND_SCRIPT_SAVER`n"
 $bytes  = [System.Text.Encoding]::UTF8.GetBytes($packet)
 
 Write-Host ""
 Write-Host "Packet size: $($bytes.Length) bytes" -ForegroundColor Cyan
 
 # ============================================================
-#  STEP 6 — SEND
+#  STEP 7 — SEND
 # ============================================================
 Write-Host ""
 Write-Host "Sending to IT-Tool..." -ForegroundColor Yellow
@@ -148,8 +156,8 @@ while ($offset -lt $total) {
 }
 
 Start-Sleep -Milliseconds 1500
-$port.Close()
 
+$port.Close()
 Write-Host ""
 Write-Host "Done! Folder '$folderName' created in $groupPath" -ForegroundColor Green
 Write-Host ""

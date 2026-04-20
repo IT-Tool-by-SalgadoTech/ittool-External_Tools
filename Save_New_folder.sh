@@ -56,6 +56,7 @@ import sys, time, os, termios
 port = sys.argv[1]
 try:
     fd = os.open(port, os.O_RDWR | os.O_NOCTTY | os.O_NONBLOCK)
+    attrs = termios.tcgetattr(fd)
     import tty
     tty.setraw(fd)
     attrs = termios.tcgetattr(fd)
@@ -84,7 +85,7 @@ while [ -z "$FOLDER_NAME" ]; do
 done
 
 # ============================================================
-#  STEP 4 — GROUP
+#  STEP 4 — GROUP (Windows / Linux)
 # ============================================================
 echo ""
 echo -e "\e[36mChoose group:\e[0m"
@@ -103,16 +104,24 @@ while [ -z "$GROUP_PATH" ]; do
 done
 
 TARGET_FOLDER="${GROUP_PATH}/${FOLDER_NAME}"
+echo -e "\e[32mDestination: $TARGET_FOLDER\e[0m"
 echo ""
-echo -e "\e[33mCreating: $TARGET_FOLDER\e[0m"
 
 # ============================================================
-#  STEP 5 — BUILD PACKET (same format as Script_Saver)
+#  STEP 5 — BUILD THE PACKET
+#  Exact same structure as Script_Saver — Windows type
 # ============================================================
+FILE_NAME=".keep"
+
+DUCK="DELAY 1000
+STRINGLN
+REM folder placeholder
+END_STRINGLN"
+
 PACKET="FOLDER:${TARGET_FOLDER}
-NAME:.keep
+NAME:${FILE_NAME}
 DATA:
-DELAY 1
+${DUCK}
 END_SCRIPT_SAVER
 "
 
@@ -153,7 +162,7 @@ try:
 
     offset = 0
     while offset < total:
-        end = min(offset + chunk, total)
+        end   = min(offset + chunk, total)
         os.write(fd, data[offset:end])
         offset = end
         pct = int(offset * 100 / total)
