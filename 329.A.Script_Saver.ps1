@@ -18,8 +18,6 @@ Read-Host "Come back here and press 'ENTER'"
 
 # ============================================================
 #  STEP 1 — DETECT COM PORT
-#  Only shows USB serial ports with Status OK (filters out
-#  Bluetooth virtual ports which cause GetPortNames() issues)
 # ============================================================
 $comPort = ""
 $availablePorts = @()
@@ -79,7 +77,7 @@ while ([string]::IsNullOrWhiteSpace($fileName)) {
 }
 
 # ============================================================
-#  STEP 4 — SCRIPT TYPE (controls transmission method)
+#  STEP 4 — SCRIPT TYPE
 # ============================================================
 Write-Host ""
 Write-Host "What type of script are you saving?" -ForegroundColor Cyan
@@ -100,7 +98,7 @@ Write-Host "Script type: $scriptType" -ForegroundColor Green
 Write-Host ""
 
 # ============================================================
-#  STEP 5 — DESTINATION FOLDER (independent of script type)
+#  STEP 5 — DESTINATION FOLDER
 # ============================================================
 Write-Host "Choose destination folder:" -ForegroundColor Cyan
 Write-Host ""
@@ -125,9 +123,12 @@ Write-Host "    17. G.Nmap"
 Write-Host "    18. H.Kali_Linux"
 Write-Host ""
 Write-Host "    0. Favorites"
+Write-Host "   19. New Folder (create inside an existing folder)" -ForegroundColor Yellow
 Write-Host ""
 
 $targetFolder = ""
+$newFolderName = ""
+
 while ([string]::IsNullOrWhiteSpace($targetFolder)) {
     $fc = (Read-Host "Folder number").Trim()
     switch ($fc) {
@@ -148,6 +149,67 @@ while ([string]::IsNullOrWhiteSpace($targetFolder)) {
         "17" { $targetFolder = "B.OS_System/B.Linux/G.Nmap" }
         "18" { $targetFolder = "B.OS_System/B.Linux/H.Kali_Linux" }
         "0"  { $targetFolder = "Favorites" }
+        "19" {
+            # --- New Folder ---
+            Write-Host ""
+            Write-Host "Select the parent folder for the new folder:" -ForegroundColor Cyan
+            Write-Host ""
+            Write-Host "  Windows:"
+            Write-Host "    1. B.Admin_And_Security"
+            Write-Host "    2. C.Networks"
+            Write-Host "    3. D.Folder_and_Files"
+            Write-Host "    4. E.Storage"
+            Write-Host "    5. F. Monitoring"
+            Write-Host "    6. G.External_links_tools"
+            Write-Host "    7. H.Nmap"
+            Write-Host "    8. I.App_Downloader"
+            Write-Host ""
+            Write-Host "  Linux:"
+            Write-Host "    11. A.Admin_And_Security"
+            Write-Host "    12. B.Networks"
+            Write-Host "    13. C.Folders_and_Files"
+            Write-Host "    14. D.Storage"
+            Write-Host "    15. E.Monitoring"
+            Write-Host "    16. F.External_links_tools"
+            Write-Host "    17. G.Nmap"
+            Write-Host "    18. H.Kali_Linux"
+            Write-Host ""
+            Write-Host "    0. Favorites"
+            Write-Host ""
+
+            $parentFolder = ""
+            while ([string]::IsNullOrWhiteSpace($parentFolder)) {
+                $pfc = (Read-Host "Parent folder number").Trim()
+                switch ($pfc) {
+                    "1"  { $parentFolder = "B.OS_System/A.Windows/B.Admin_And_Security" }
+                    "2"  { $parentFolder = "B.OS_System/A.Windows/C.Networks" }
+                    "3"  { $parentFolder = "B.OS_System/A.Windows/D.Folder_and_Files" }
+                    "4"  { $parentFolder = "B.OS_System/A.Windows/E.Storage" }
+                    "5"  { $parentFolder = "B.OS_System/A.Windows/F. Monitoring" }
+                    "6"  { $parentFolder = "B.OS_System/A.Windows/G.External_links_tools" }
+                    "7"  { $parentFolder = "B.OS_System/A.Windows/H.Nmap" }
+                    "8"  { $parentFolder = "B.OS_System/A.Windows/I.App_Downloader" }
+                    "11" { $parentFolder = "B.OS_System/B.Linux/A.Admin_And_Security" }
+                    "12" { $parentFolder = "B.OS_System/B.Linux/B.Networks" }
+                    "13" { $parentFolder = "B.OS_System/B.Linux/C.Folders_and_Files" }
+                    "14" { $parentFolder = "B.OS_System/B.Linux/D.Storage" }
+                    "15" { $parentFolder = "B.OS_System/B.Linux/E.Monitoring" }
+                    "16" { $parentFolder = "B.OS_System/B.Linux/F.External_links_tools" }
+                    "17" { $parentFolder = "B.OS_System/B.Linux/G.Nmap" }
+                    "18" { $parentFolder = "B.OS_System/B.Linux/H.Kali_Linux" }
+                    "0"  { $parentFolder = "Favorites" }
+                    default { Write-Host "  Invalid option." -ForegroundColor Yellow }
+                }
+            }
+
+            Write-Host ""
+            while ([string]::IsNullOrWhiteSpace($newFolderName)) {
+                $newFolderName = (Read-Host "New folder name").Trim()
+            }
+
+            $targetFolder = "$parentFolder/$newFolderName"
+            Write-Host "New folder will be created: $targetFolder" -ForegroundColor Yellow
+        }
         default { Write-Host "  Invalid option." -ForegroundColor Yellow }
     }
 }
@@ -180,8 +242,6 @@ if ([string]::IsNullOrWhiteSpace($userText)) {
 
 # ============================================================
 #  STEP 7 — BUILD THE DUCKY SCRIPT
-#  Windows -> STRINGLN
-#  Linux   -> base64
 # ============================================================
 $nl = "`n"
 
@@ -245,6 +305,10 @@ Start-Sleep -Milliseconds 1500
 
 $port.Close()
 Write-Host ""
-Write-Host "Done! Script '$fileName' sent to ReadyUSB > $targetFolder" -ForegroundColor Green
+if ($newFolderName -ne "") {
+    Write-Host "Done! Folder '$newFolderName' created and script '$fileName' saved inside." -ForegroundColor Green
+} else {
+    Write-Host "Done! Script '$fileName' sent to ReadyUSB > $targetFolder" -ForegroundColor Green
+}
 Write-Host ""
 Read-Host "Press ENTER to close"
