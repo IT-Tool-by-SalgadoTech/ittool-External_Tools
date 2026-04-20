@@ -103,18 +103,15 @@ Write-Host "Destination: $targetFolder" -ForegroundColor Green
 Write-Host ""
 
 # ============================================================
-#  STEP 5 — BUILD THE DUCKY SCRIPT
+#  STEP 5 — BUILD THE DUCKY SCRIPT (identical to Script_Saver)
 # ============================================================
 $nl   = "`n"
-$duck = 'DELAY 1000' + $nl +
-        'STRINGLN' + $nl +
-        'REM folder placeholder' + $nl +
-        'END_STRINGLN'
+$duck = 'DELAY 1000' + $nl + 'STRINGLN' + $nl + 'REM placeholder' + $nl + 'END_STRINGLN'
 
 # ============================================================
-#  STEP 6 — ASSEMBLE THE PACKET
+#  STEP 6 — ASSEMBLE THE PACKET (identical to Script_Saver)
 # ============================================================
-$fileName = ".keep"
+$fileName = "keep"
 $packet = "FOLDER:$targetFolder`nNAME:$fileName`nDATA:`n$duck`nEND_SCRIPT_SAVER`n"
 $bytes  = [System.Text.Encoding]::UTF8.GetBytes($packet)
 
@@ -122,7 +119,7 @@ Write-Host ""
 Write-Host "Packet size: $($bytes.Length) bytes" -ForegroundColor Cyan
 
 # ============================================================
-#  STEP 7 — SEND
+#  STEP 7 — SEND (identical to Script_Saver)
 # ============================================================
 Write-Host ""
 Write-Host "Sending to IT-Tool..." -ForegroundColor Yellow
