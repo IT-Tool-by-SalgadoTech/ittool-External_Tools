@@ -18,6 +18,8 @@ Read-Host "Come back here and press 'ENTER'"
 
 # ============================================================
 #  STEP 1 — DETECT COM PORT
+#  Only shows USB serial ports with Status OK (filters out
+#  Bluetooth virtual ports which cause GetPortNames() issues)
 # ============================================================
 $comPort = ""
 $availablePorts = @()
@@ -77,7 +79,7 @@ while ([string]::IsNullOrWhiteSpace($fileName)) {
 }
 
 # ============================================================
-#  STEP 4 — SCRIPT TYPE
+#  STEP 4 — SCRIPT TYPE (controls transmission method)
 # ============================================================
 Write-Host ""
 Write-Host "What type of script are you saving?" -ForegroundColor Cyan
@@ -98,7 +100,7 @@ Write-Host "Script type: $scriptType" -ForegroundColor Green
 Write-Host ""
 
 # ============================================================
-#  STEP 5 — DESTINATION FOLDER
+#  STEP 5 — DESTINATION FOLDER (independent of script type)
 # ============================================================
 Write-Host "Choose destination folder:" -ForegroundColor Cyan
 Write-Host ""
@@ -107,7 +109,7 @@ Write-Host "    1. B.Admin_And_Security"
 Write-Host "    2. C.Networks"
 Write-Host "    3. D.Folder_and_Files"
 Write-Host "    4. E.Storage"
-Write-Host "    5. F.Monitoring"
+Write-Host "    5. F. Monitoring"
 Write-Host "    6. G.External_links_tools"
 Write-Host "    7. H.Nmap"
 Write-Host "    8. I.App_Downloader"
@@ -123,51 +125,29 @@ Write-Host "    17. G.Nmap"
 Write-Host "    18. H.Kali_Linux"
 Write-Host ""
 Write-Host "    0. Favorites"
-Write-Host "   19. New Folder"
 Write-Host ""
 
 $targetFolder = ""
-
 while ([string]::IsNullOrWhiteSpace($targetFolder)) {
     $fc = (Read-Host "Folder number").Trim()
     switch ($fc) {
-        "1"  { $targetFolder = "A.OS_System/A.Windows/B.Admin_And_Security" }
-        "2"  { $targetFolder = "A.OS_System/A.Windows/C.Networks" }
-        "3"  { $targetFolder = "A.OS_System/A.Windows/D.Folder_and_Files" }
-        "4"  { $targetFolder = "A.OS_System/A.Windows/E.Storage" }
-        "5"  { $targetFolder = "A.OS_System/A.Windows/F.Monitoring" }
-        "6"  { $targetFolder = "A.OS_System/A.Windows/G.External_links_tools" }
-        "7"  { $targetFolder = "A.OS_System/A.Windows/H.Nmap" }
-        "8"  { $targetFolder = "A.OS_System/A.Windows/I.App_Downloader" }
-        "11" { $targetFolder = "A.OS_System/B.Linux/A.Admin_And_Security" }
-        "12" { $targetFolder = "A.OS_System/B.Linux/B.Networks" }
-        "13" { $targetFolder = "A.OS_System/B.Linux/C.Folders_and_Files" }
-        "14" { $targetFolder = "A.OS_System/B.Linux/D.Storage" }
-        "15" { $targetFolder = "A.OS_System/B.Linux/E.Monitoring" }
-        "16" { $targetFolder = "A.OS_System/B.Linux/F.External_links_tools" }
-        "17" { $targetFolder = "A.OS_System/B.Linux/G.Nmap" }
-        "18" { $targetFolder = "A.OS_System/B.Linux/H.Kali_Linux" }
+        "1"  { $targetFolder = "B.OS_System/A.Windows/B.Admin_And_Security" }
+        "2"  { $targetFolder = "B.OS_System/A.Windows/C.Networks" }
+        "3"  { $targetFolder = "B.OS_System/A.Windows/D.Folder_and_Files" }
+        "4"  { $targetFolder = "B.OS_System/A.Windows/E.Storage" }
+        "5"  { $targetFolder = "B.OS_System/A.Windows/F. Monitoring" }
+        "6"  { $targetFolder = "B.OS_System/A.Windows/G.External_links_tools" }
+        "7"  { $targetFolder = "B.OS_System/A.Windows/H.Nmap" }
+        "8"  { $targetFolder = "B.OS_System/A.Windows/I.App_Downloader" }
+        "11" { $targetFolder = "B.OS_System/B.Linux/A.Admin_And_Security" }
+        "12" { $targetFolder = "B.OS_System/B.Linux/B.Networks" }
+        "13" { $targetFolder = "B.OS_System/B.Linux/C.Folders_and_Files" }
+        "14" { $targetFolder = "B.OS_System/B.Linux/D.Storage" }
+        "15" { $targetFolder = "B.OS_System/B.Linux/E.Monitoring" }
+        "16" { $targetFolder = "B.OS_System/B.Linux/F.External_links_tools" }
+        "17" { $targetFolder = "B.OS_System/B.Linux/G.Nmap" }
+        "18" { $targetFolder = "B.OS_System/B.Linux/H.Kali_Linux" }
         "0"  { $targetFolder = "Favorites" }
-        "19" {
-            $newFolderName = ""
-            while ([string]::IsNullOrWhiteSpace($newFolderName)) {
-                $newFolderName = (Read-Host "New folder name").Trim()
-            }
-            Write-Host ""
-            Write-Host "  1. Windows"
-            Write-Host "  2. Linux"
-            Write-Host ""
-            $osGroup = ""
-            while ([string]::IsNullOrWhiteSpace($osGroup)) {
-                $og = (Read-Host "Where to save it").Trim()
-                switch ($og) {
-                    "1" { $osGroup = "A.OS_System/A.Windows" }
-                    "2" { $osGroup = "A.OS_System/B.Linux" }
-                    default { Write-Host "  Invalid option." -ForegroundColor Yellow }
-                }
-            }
-            $targetFolder = "$osGroup/$newFolderName"
-        }
         default { Write-Host "  Invalid option." -ForegroundColor Yellow }
     }
 }
@@ -200,6 +180,8 @@ if ([string]::IsNullOrWhiteSpace($userText)) {
 
 # ============================================================
 #  STEP 7 — BUILD THE DUCKY SCRIPT
+#  Windows -> STRINGLN
+#  Linux   -> base64
 # ============================================================
 $nl = "`n"
 
