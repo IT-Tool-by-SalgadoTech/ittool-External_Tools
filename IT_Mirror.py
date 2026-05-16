@@ -364,6 +364,10 @@ def main():
     _last_cmd_a_ms    = 0
     CMD_A_DEBOUNCE_MS = 500   # ms mínimos entre CMD:A consecutivos
 
+    # Eje del scroll: 'Y' = arriba/abajo (default), 'X' = izquierda/derecha
+    # Click del scroll (botón medio) alterna entre los dos modos.
+    scroll_axis = 'Y'
+
     print("Ve al menu del IT-Tool → PC_Mirror → Mirror ON.")
     print("Al llegar el primer frame veras info de diagnostico en esta consola.")
 
@@ -410,6 +414,11 @@ def main():
                     # Click izquierdo en area imagen → B
                     if not receiver.runner_active:
                         receiver.send_cmd("B")
+                elif event.button == 2:
+                    # Click del scroll (botón medio) → alternar eje del scroll
+                    scroll_axis = 'X' if scroll_axis == 'Y' else 'Y'
+                    axis_label = "← →  LEFT/RIGHT" if scroll_axis == 'X' else "↑ ↓  UP/DOWN"
+                    print(f"[Mirror] Scroll axis: {axis_label}")
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
@@ -442,10 +451,18 @@ def main():
 
             elif event.type == pygame.MOUSEWHEEL:
                 if not receiver.runner_active:
-                    if event.y > 0:
-                        receiver.send_cmd("UP")
-                    elif event.y < 0:
-                        receiver.send_cmd("DOWN")
+                    if scroll_axis == 'Y':
+                        # Modo vertical (default): UP / DOWN
+                        if event.y > 0:
+                            receiver.send_cmd("UP")
+                        elif event.y < 0:
+                            receiver.send_cmd("DOWN")
+                    else:
+                        # Modo horizontal (activado con click del scroll): LEFT / RIGHT
+                        if event.y > 0:
+                            receiver.send_cmd("LEFT")
+                        elif event.y < 0:
+                            receiver.send_cmd("RIGHT")
 
         # ── Barra de titulo ───────────────────────────────────────────────────
         pygame.draw.rect(screen, (20, 20, 40), (0, 0, win_w, TITLE_BAR_H))
@@ -454,6 +471,14 @@ def main():
             f"IT-Tool Mirror  {frame_w}x{frame_h}  (x{scale})  — arrastra aqui",
             True, (0, 212, 255))
         screen.blit(title_lbl, (8, (TITLE_BAR_H - title_lbl.get_height()) // 2))
+
+        # Indicador de eje del scroll — badge en la barra de titulo
+        # Verde = Y (vertical, default) | Naranja = X (horizontal)
+        axis_txt  = "↑↓" if scroll_axis == 'Y' else "←→"
+        axis_col  = (0, 220, 120) if scroll_axis == 'Y' else (255, 160, 0)
+        axis_surf = font_title.render(axis_txt, True, axis_col)
+        axis_x    = win_w - axis_surf.get_width() - 52  # a la izquierda del fps
+        screen.blit(axis_surf, (axis_x, (TITLE_BAR_H - axis_surf.get_height()) // 2))
 
         # ── Error de serial ───────────────────────────────────────────────────
         if receiver.error:
