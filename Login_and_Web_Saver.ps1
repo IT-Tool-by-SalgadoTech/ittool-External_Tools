@@ -70,6 +70,8 @@ try {
     $portReset.Open()
     Start-Sleep -Milliseconds 400
     $portReset.Close()
+    # Wait for Windows CDC driver to fully release the port after reset
+    Start-Sleep -Milliseconds 1500
 } catch {
     Write-Host "Reset warning: $($_.Exception.Message)" -ForegroundColor Yellow
 }
@@ -114,7 +116,9 @@ Write-Host ""
 # ============================================================
 $password = ""
 while ([string]::IsNullOrWhiteSpace($password)) {
-    $password = (Read-Host "Enter password").Trim()
+    $securePass = Read-Host "Enter password" -AsSecureString
+    $password   = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto(
+                      [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePass))
 }
 Write-Host "Password captured." -ForegroundColor Green
 Write-Host ""
@@ -215,7 +219,25 @@ $port.RtsEnable    = $false
 $port.Encoding     = [System.Text.Encoding]::UTF8
 $port.ReadTimeout  = 3000
 $port.WriteTimeout = 5000
-$port.Open()
+
+# Retry open: Windows CDC driver may take a moment to release after reset
+$openOk = $false
+for ($attempt = 1; $attempt -le 5; $attempt++) {
+    try {
+        $port.Open()
+        $openOk = $true
+        break
+    } catch {
+        Write-Host "  Port busy, retrying ($attempt/5)..." -ForegroundColor Yellow
+        Start-Sleep -Milliseconds 1000
+    }
+}
+if (-not $openOk) {
+    Write-Host "ERROR: Could not open $comPort after 5 attempts." -ForegroundColor Red
+    Write-Host "Make sure no other program is using the port." -ForegroundColor Red
+    Read-Host "Press ENTER to close"
+    exit
+}
 
 Start-Sleep -Milliseconds 500
 
