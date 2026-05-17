@@ -18,32 +18,46 @@ Read-Host "Come back here and press 'ENTER'"
 
 # ============================================================
 #  STEP 1 — DETECT COM PORT
+#  Shows COMx + full device description (like IT_Mirror.py)
+#  so you can identify the IT-Tool among Bluetooth virtual ports.
 # ============================================================
 $comPort = ""
-$availablePorts = @()
+$portEntries = @()   # array of [pscustomobject] with .Com and .Desc
 
-$availablePorts = @(Get-PnpDevice -Class Ports -ErrorAction SilentlyContinue |
+$portEntries = @(Get-PnpDevice -Class Ports -ErrorAction SilentlyContinue |
     Where-Object { $_.Status -eq "OK" -and $_.FriendlyName -match "COM\d+" } |
-    ForEach-Object { [regex]::Match($_.FriendlyName, "COM\d+").Value } |
-    Where-Object { $_ -ne "" } |
-    Sort-Object)
+    ForEach-Object {
+        $com  = [regex]::Match($_.FriendlyName, "COM\d+").Value
+        # FriendlyName typical formats:
+        #   "USB Serial Device (COM6)"           ← IT-Tool USB CDC
+        #   "Standard Serial over Bluetooth link (COM11)"
+        # Strip the trailing "(COMx)" to get a clean description label.
+        $desc = $_.FriendlyName -replace "\s*\(COM\d+\)\s*$", ""
+        if ($com -ne "") {
+            [pscustomobject]@{ Com = $com; Desc = $desc }
+        }
+    } |
+    Sort-Object { [int]($_.Com -replace "COM","") })
 
-if ($availablePorts.Count -eq 0) {
+$availablePorts = $portEntries | ForEach-Object { $_.Com }
+
+if ($portEntries.Count -eq 0) {
     Write-Host "No COM ports detected. Check IT-Tool USB connection." -ForegroundColor Red
     Read-Host "Press ENTER to close"
     exit
 }
 Write-Host ""
 Write-Host "Available COM ports:" -ForegroundColor Cyan
-for ($i = 0; $i -lt $availablePorts.Count; $i++) {
-    Write-Host "  $($i + 1). $($availablePorts[$i])"
+for ($i = 0; $i -lt $portEntries.Count; $i++) {
+    $e = $portEntries[$i]
+    Write-Host "  $($i + 1). $($e.Com)  —  $($e.Desc)"
 }
 Write-Host ""
 while ([string]::IsNullOrWhiteSpace($comPort)) {
     $choice = (Read-Host "Select port number").Trim()
     $idx = 0
-    if ([int]::TryParse($choice, [ref]$idx) -and $idx -ge 1 -and $idx -le $availablePorts.Count) {
-        $comPort = $availablePorts[$idx - 1]
+    if ([int]::TryParse($choice, [ref]$idx) -and $idx -ge 1 -and $idx -le $portEntries.Count) {
+        $comPort = $portEntries[$idx - 1].Com
     } else {
         Write-Host "  Invalid option." -ForegroundColor Yellow
     }
