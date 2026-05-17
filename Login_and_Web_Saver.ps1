@@ -28,14 +28,8 @@ $portEntries = @(Get-PnpDevice -Class Ports -ErrorAction SilentlyContinue |
     Where-Object { $_.Status -eq "OK" -and $_.FriendlyName -match "COM\d+" } |
     ForEach-Object {
         $com  = [regex]::Match($_.FriendlyName, "COM\d+").Value
-        # FriendlyName typical formats:
-        #   "USB Serial Device (COM6)"           ← IT-Tool USB CDC
-        #   "Standard Serial over Bluetooth link (COM11)"
-        # Strip the trailing "(COMx)" to get a clean description label.
         $desc = $_.FriendlyName -replace "\s*\(COM\d+\)\s*$", ""
-        if ($com -ne "") {
-            [pscustomobject]@{ Com = $com; Desc = $desc }
-        }
+        [pscustomobject]@{ Com = $com; Desc = $desc }
     } |
     Sort-Object { [int]($_.Com -replace "COM","") })
 
@@ -50,7 +44,7 @@ Write-Host ""
 Write-Host "Available COM ports:" -ForegroundColor Cyan
 for ($i = 0; $i -lt $portEntries.Count; $i++) {
     $e = $portEntries[$i]
-    Write-Host "  $($i + 1). $($e.Com)  —  $($e.Desc)"
+    Write-Host "  $($i + 1). $($e.Com)  --  $($e.Desc)"
 }
 Write-Host ""
 while ([string]::IsNullOrWhiteSpace($comPort)) {
