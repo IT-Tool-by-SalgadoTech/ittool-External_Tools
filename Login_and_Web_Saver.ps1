@@ -187,7 +187,7 @@ Write-Host ""
 $nl = "`n"
 
 $duckWebLink  = "DELAY 1000"       + $nl + "STRING $webLink"  + $nl + "ENTER"
-$duckUsername = "DELAY 1000"       + $nl + "STRING $username" + $nl + "ENTER"
+$duckUsername = "DELAY 1000"       + $nl + "STRING $username" + $nl + "TAB"
 $duckPassword = "DELAY 1000"       + $nl + "STRING $password" + $nl + "ENTER"
 
 $subFolder = "$targetFolder/$folderName"
