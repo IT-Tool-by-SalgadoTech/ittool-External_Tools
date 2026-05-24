@@ -56,7 +56,7 @@ def write_index(root: Path, out_file: Path, strip_extensions: bool = True, skip_
 
 def main():
     print("== TXT Index Generator ==")
-    src = input("Origen (ruta de la carpeta): ").strip().strip('"')
+    src = input("Origin (folder path): ").strip().strip('"')
     if not src:
         print("No se dio Origen. Saliendo.")
         return
