@@ -153,22 +153,22 @@ $targetFolder = ""
 while ([string]::IsNullOrWhiteSpace($targetFolder)) {
     $fc = (Read-Host "Folder number").Trim()
     switch ($fc) {
-        "1"  { $targetFolder = "B.OS_System/A.Windows/A__Admin_And_Security" }
-        "2"  { $targetFolder = "B.OS_System/A.Windows/B__Networks" }
-        "3"  { $targetFolder = "B.OS_System/A.Windows/C__Folder_and_Files" }
-        "4"  { $targetFolder = "B.OS_System/A.Windows/D__Storage" }
-        "5"  { $targetFolder = "B.OS_System/A.Windows/E__Monitoring" }
-        "6"  { $targetFolder = "B.OS_System/A.Windows/F__External_links_tools" }
-        "7"  { $targetFolder = "B.OS_System/A.Windows/G__Nmap" }
-        "8"  { $targetFolder = "B.OS_System/A.Windows/H__App_Downloader" }
-        "11" { $targetFolder = "B.OS_System/B.Linux/A__Admin_And_Security" }
-        "12" { $targetFolder = "B.OS_System/B.Linux/B__Networks" }
-        "13" { $targetFolder = "B.OS_System/B.Linux/C__Folder_and_Files" }
-        "14" { $targetFolder = "B.OS_System/B.Linux/D__Storage" }
-        "15" { $targetFolder = "B.OS_System/B.Linux/E__Monitoring" }
-        "16" { $targetFolder = "B.OS_System/B.Linux/F__External_links_tools" }
-        "17" { $targetFolder = "B.OS_System/B.Linux/G__Nmap" }
-        "18" { $targetFolder = "B.OS_System/B.Linux/H__Kali_Linux" }
+        "1"  { $targetFolder = "A.OS_System/A.Windows/A__Admin_And_Security" }
+        "2"  { $targetFolder = "A.OS_System/A.Windows/B__Networks" }
+        "3"  { $targetFolder = "A.OS_System/A.Windows/C__Folder_and_Files" }
+        "4"  { $targetFolder = "A.OS_System/A.Windows/D__Storage" }
+        "5"  { $targetFolder = "A.OS_System/A.Windows/E__Monitoring" }
+        "6"  { $targetFolder = "A.OS_System/A.Windows/F__External_links_tools" }
+        "7"  { $targetFolder = "A.OS_System/A.Windows/G__Nmap" }
+        "8"  { $targetFolder = "A.OS_System/A.Windows/H__App_Downloader" }
+        "11" { $targetFolder = "A.OS_System/B.Linux/A__Admin_And_Security" }
+        "12" { $targetFolder = "A.OS_System/B.Linux/B__Networks" }
+        "13" { $targetFolder = "A.OS_System/B.Linux/C__Folder_and_Files" }
+        "14" { $targetFolder = "A.OS_System/B.Linux/D__Storage" }
+        "15" { $targetFolder = "A.OS_System/B.Linux/E__Monitoring" }
+        "16" { $targetFolder = "A.OS_System/B.Linux/F__External_links_tools" }
+        "17" { $targetFolder = "A.OS_System/B.Linux/G__Nmap" }
+        "18" { $targetFolder = "A.OS_System/B.Linux/H__Kali_Linux" }
         "0"  { $targetFolder = "Favorites" }
         default { Write-Host "  Invalid option." -ForegroundColor Yellow }
     }
