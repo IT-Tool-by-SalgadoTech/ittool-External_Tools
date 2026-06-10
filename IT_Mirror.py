@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-IT-Tool PC Mirror — Touch Edition  v4
+IT-Tool PC Mirror — Touch Edition  v5
 Receives the IT-Tool screen (320x480 portrait, RGB565) via USB Serial
 and displays it scaled on your PC.
 
@@ -573,6 +573,13 @@ def main():
         pygame.display.flip()
         clock.tick(60)
 
+    # Avisar al firmware que el mirror se cerró en el PC para que reactive
+    # el screen saver (swipe izq->der). Cubre cierre por la X y por ESC.
+    try:
+        receiver.send_cmd("MIRROR_OFF")
+        time.sleep(0.15)   # flush antes de cerrar el puerto
+    except Exception:
+        pass
     receiver.running = False
     pygame.quit()
     print("Cerrado.")
