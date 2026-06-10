@@ -14,8 +14,8 @@ Write-Host "  ==================================================================
 Write-Host "  IT-Tool by SalgadoTech" -ForegroundColor Cyan
 Write-Host "  Script: 329_A_Script_Saver.ps1" -ForegroundColor DarkCyan
 Write-Host "  ScriptID: ST-WIN-0329" -ForegroundColor Cyan
-Write-Host "  Version: 1.0" -ForegroundColor DarkCyan
-Write-Host "  Date: 2025-05-22" -ForegroundColor DarkCyan
+Write-Host "  Version: 1.1" -ForegroundColor DarkCyan
+Write-Host "  Date: 2026-06-09" -ForegroundColor DarkCyan
 Write-Host "  Category: Windows > ReadyUSB" -ForegroundColor DarkCyan
 Write-Host "  Description: Saves scripts to IT-Tool SD card via chunked serial protocol" -ForegroundColor DarkCyan
 Write-Host "  (c) 2025 SalgadoTech - All Rights Reserved" -ForegroundColor DarkCyan
@@ -213,37 +213,37 @@ if ([string]::IsNullOrWhiteSpace($userText)) {
 }
 
 # ============================================================
-#  STEP 7 — BUILD THE DUCKY SCRIPT
+#  STEP 7 — BUILD THE IT_SCRIPT
 # ============================================================
 $nl = "`n"
 
 if ($scriptType -eq "Windows") {
-    $duck = 'DELAY 1000' + $nl +
-            'STRINGLN' + $nl +
+    $itscript = 'WTIME 1000' + $nl +
+            'SCRIPTL' + $nl +
             $userText  + $nl +
-            'END_STRINGLN'
+            'FIN_SCRIPTL'
 } elseif ($scriptType -eq "WindowsLineal") {
-    $duck = 'DELAY 1000' + $nl +
-            'STRING ' + $userText + $nl +
+    $itscript = 'WTIME 1000' + $nl +
+            'SCRIPT ' + $userText + $nl +
             'ENTER'
 } elseif ($scriptType -eq "WindowsBase64") {
     $bytes64 = [System.Text.Encoding]::UTF8.GetBytes($userText)
     $b64     = [Convert]::ToBase64String($bytes64)
-    $duck = 'DELAY 1000' + $nl +
-            'STRING powershell -Command "[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(' + "'" + $b64 + "'" + ')) | Invoke-Expression"' + $nl +
+    $itscript = 'WTIME 1000' + $nl +
+            'SCRIPT powershell -Command "[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String(' + "'" + $b64 + "'" + ')) | Invoke-Expression"' + $nl +
             'ENTER'
 } elseif ($scriptType -eq "LinuxBase64") {
     $bytes64 = [System.Text.Encoding]::UTF8.GetBytes($userText)
     $b64     = [Convert]::ToBase64String($bytes64)
-    $duck = 'DELAY 800' + $nl +
-            "STRING echo $b64 | base64 -d > `$HOME/ittool_run.sh && sh `$HOME/ittool_run.sh" + $nl +
+    $itscript = 'WTIME 800' + $nl +
+            "SCRIPT echo $b64 | base64 -d > `$HOME/ittool_run.sh && sh `$HOME/ittool_run.sh" + $nl +
             'ENTER'
 }
 
 # ============================================================
 #  STEP 8 — PREPARAR BYTES DEL PACKET
 # ============================================================
-$bytes = [System.Text.Encoding]::UTF8.GetBytes($duck)
+$bytes = [System.Text.Encoding]::UTF8.GetBytes($itscript)
 $total = $bytes.Length
 
 Write-Host ""
