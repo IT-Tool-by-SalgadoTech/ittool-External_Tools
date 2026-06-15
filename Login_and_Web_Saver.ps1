@@ -1,27 +1,32 @@
+Set-ExecutionPolicy Bypass -Scope Process -Force
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $ErrorActionPreference = "Stop"
 
 Write-Host ""
-Write-Host "======================================" -ForegroundColor Magenta
-Write-Host "   IT-Tool - Login and Web Saver" -ForegroundColor Magenta
-Write-Host "======================================" -ForegroundColor Magenta
+Write-Host "  ==================================================================" -ForegroundColor White
+Write-Host "  IT-Tool by SalgadoTech" -ForegroundColor Cyan
+Write-Host "  Script: Login_and_Web_Saver.ps1" -ForegroundColor DarkCyan
+Write-Host "  Version: 2.0" -ForegroundColor DarkCyan
+Write-Host "  Date: 2026-06-15" -ForegroundColor DarkCyan
+Write-Host "  Category: Windows > ReadyUSB" -ForegroundColor DarkCyan
+Write-Host "  Description: Saves Web Link, Username and Password scripts to IT-Tool SD card" -ForegroundColor DarkCyan
+Write-Host "  (c) 2025 SalgadoTech - All Rights Reserved" -ForegroundColor DarkCyan
+Write-Host "  Unauthorized distribution prohibited" -ForegroundColor DarkCyan
+Write-Host "  ==================================================================" -ForegroundColor White
 Write-Host ""
 
 # ============================================================
 #  STEP 0 -- CONNECT IT-TOOL
 # ============================================================
 Write-Host "Before continuing:" -ForegroundColor Yellow
-Write-Host "  1. Unplug the IT-Tool USB cable" -ForegroundColor White
-Write-Host "  2. Plug it back in" -ForegroundColor White
+Write-Host "  1. Push the IT-Tool Reset button" -ForegroundColor White
 Write-Host ""
-Read-Host "Come back here and press 'ENTER'"
+Read-Host "2. Come back here and press 'ENTER'"
 
 # ============================================================
 #  STEP 1 -- DETECT COM PORT
-#  Shows COMx + full device description (like IT_Mirror.py)
-#  so you can identify the IT-Tool among Bluetooth virtual ports.
 # ============================================================
-$comPort = ""
+$comPort     = ""
 $portEntries = @()
 
 $portEntries = @(Get-PnpDevice -Class Ports -ErrorAction SilentlyContinue |
@@ -32,8 +37,6 @@ $portEntries = @(Get-PnpDevice -Class Ports -ErrorAction SilentlyContinue |
         [pscustomobject]@{ Com = $com; Desc = $desc }
     } |
     Sort-Object { [int]($_.Com -replace "COM","") })
-
-$availablePorts = $portEntries | ForEach-Object { $_.Com }
 
 if ($portEntries.Count -eq 0) {
     Write-Host "No COM ports detected. Check IT-Tool USB connection." -ForegroundColor Red
@@ -62,24 +65,22 @@ Write-Host ""
 # ============================================================
 #  STEP 2 -- CONTROLLED RESET
 # ============================================================
-Write-Host "IT-Tool reset, please navigate to:" -ForegroundColor Yellow
+Write-Host "IT-Tool reset, Please come to:" -ForegroundColor Yellow
 try {
-    $portReset = New-Object System.IO.Ports.SerialPort $comPort, 115200, None, 8, One
+    $portReset = New-Object System.IO.Ports.SerialPort $comPort, 460800, None, 8, One
     $portReset.DtrEnable = $false
     $portReset.RtsEnable = $false
     $portReset.Open()
     Start-Sleep -Milliseconds 400
     $portReset.Close()
-    # Wait for Windows CDC driver to fully release the port after reset
-    Start-Sleep -Milliseconds 1500
 } catch {
     Write-Host "Reset warning: $($_.Exception.Message)" -ForegroundColor Yellow
 }
-Write-Host "ReadyUSB > Script_Saver." -ForegroundColor Green
+Write-Host "ReadyUSB > Script_Saver > Script_Saver." -ForegroundColor Green
 Write-Host ""
 
 # ============================================================
-#  STEP 3 -- FOLDER NAME (will be created inside destination)
+#  STEP 3 -- FOLDER NAME
 # ============================================================
 Write-Host "Enter the name for the new folder that will contain" -ForegroundColor Cyan
 Write-Host "the 3 scripts (A.WebLink, B.Username, C.Password):" -ForegroundColor Cyan
@@ -129,24 +130,24 @@ Write-Host ""
 Write-Host "Choose destination folder:" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  Windows folders:"
-Write-Host "    1. B.Admin_And_Security"
-Write-Host "    2. C.Networks"
-Write-Host "    3. D.Folder_and_Files"
-Write-Host "    4. E.Storage"
-Write-Host "    5. F. Monitoring"
-Write-Host "    6. G.External_links_tools"
-Write-Host "    7. H.Nmap"
-Write-Host "    8. I.App_Downloader"
+Write-Host "    1. A__Admin_And_Security"
+Write-Host "    2. B__Networks"
+Write-Host "    3. C__Folder_and_Files"
+Write-Host "    4. D__Storage"
+Write-Host "    5. E__Monitoring"
+Write-Host "    6. F__External_links_tools"
+Write-Host "    7. G__Nmap"
+Write-Host "    8. H__App_Downloader"
 Write-Host ""
 Write-Host "  Linux folders:"
-Write-Host "    11. A.Admin_And_Security"
-Write-Host "    12. B.Networks"
-Write-Host "    13. C.Folders_and_Files"
-Write-Host "    14. D.Storage"
-Write-Host "    15. E.Monitoring"
-Write-Host "    16. F.External_links_tools"
-Write-Host "    17. G.Nmap"
-Write-Host "    18. H.Kali_Linux"
+Write-Host "    11. A__Admin_And_Security"
+Write-Host "    12. B__Networks"
+Write-Host "    13. C__Folder_and_Files"
+Write-Host "    14. D__Storage"
+Write-Host "    15. E__Monitoring"
+Write-Host "    16. F__External_links_tools"
+Write-Host "    17. G__Nmap"
+Write-Host "    18. H__Kali_Linux"
 Write-Host ""
 Write-Host "    0. Favorites"
 Write-Host ""
@@ -155,22 +156,22 @@ $targetFolder = ""
 while ([string]::IsNullOrWhiteSpace($targetFolder)) {
     $fc = (Read-Host "Folder number").Trim()
     switch ($fc) {
-        "1"  { $targetFolder = "B.OS_System/A.Windows/B.Admin_And_Security" }
-        "2"  { $targetFolder = "B.OS_System/A.Windows/C.Networks" }
-        "3"  { $targetFolder = "B.OS_System/A.Windows/D.Folder_and_Files" }
-        "4"  { $targetFolder = "B.OS_System/A.Windows/E.Storage" }
-        "5"  { $targetFolder = "B.OS_System/A.Windows/F. Monitoring" }
-        "6"  { $targetFolder = "B.OS_System/A.Windows/G.External_links_tools" }
-        "7"  { $targetFolder = "B.OS_System/A.Windows/H.Nmap" }
-        "8"  { $targetFolder = "B.OS_System/A.Windows/I.App_Downloader" }
-        "11" { $targetFolder = "B.OS_System/B.Linux/A.Admin_And_Security" }
-        "12" { $targetFolder = "B.OS_System/B.Linux/B.Networks" }
-        "13" { $targetFolder = "B.OS_System/B.Linux/C.Folders_and_Files" }
-        "14" { $targetFolder = "B.OS_System/B.Linux/D.Storage" }
-        "15" { $targetFolder = "B.OS_System/B.Linux/E.Monitoring" }
-        "16" { $targetFolder = "B.OS_System/B.Linux/F.External_links_tools" }
-        "17" { $targetFolder = "B.OS_System/B.Linux/G.Nmap" }
-        "18" { $targetFolder = "B.OS_System/B.Linux/H.Kali_Linux" }
+        "1"  { $targetFolder = "A.OS_System/A.Windows/A__Admin_And_Security" }
+        "2"  { $targetFolder = "A.OS_System/A.Windows/B__Networks" }
+        "3"  { $targetFolder = "A.OS_System/A.Windows/C__Folder_and_Files" }
+        "4"  { $targetFolder = "A.OS_System/A.Windows/D__Storage" }
+        "5"  { $targetFolder = "A.OS_System/A.Windows/E__Monitoring" }
+        "6"  { $targetFolder = "A.OS_System/A.Windows/F__External_links_tools" }
+        "7"  { $targetFolder = "A.OS_System/A.Windows/G__Nmap" }
+        "8"  { $targetFolder = "A.OS_System/A.Windows/H__App_Downloader" }
+        "11" { $targetFolder = "A.OS_System/B.Linux/A__Admin_And_Security" }
+        "12" { $targetFolder = "A.OS_System/B.Linux/B__Networks" }
+        "13" { $targetFolder = "A.OS_System/B.Linux/C__Folder_and_Files" }
+        "14" { $targetFolder = "A.OS_System/B.Linux/D__Storage" }
+        "15" { $targetFolder = "A.OS_System/B.Linux/E__Monitoring" }
+        "16" { $targetFolder = "A.OS_System/B.Linux/F__External_links_tools" }
+        "17" { $targetFolder = "A.OS_System/B.Linux/G__Nmap" }
+        "18" { $targetFolder = "A.OS_System/B.Linux/H__Kali_Linux" }
         "0"  { $targetFolder = "Favorites" }
         default { Write-Host "  Invalid option." -ForegroundColor Yellow }
     }
@@ -179,97 +180,481 @@ Write-Host "Destination: $targetFolder/$folderName" -ForegroundColor Green
 Write-Host ""
 
 # ============================================================
-#  STEP 8 -- BUILD DUCKY SCRIPTS
-#  A.WebLink  -> DELAY 1000 / STRING <url>  / ENTER
-#  B.Username -> DELAY 1000 / STRING <user> / ENTER
-#  C.Password -> DELAY 1000 / STRING <pass> / ENTER
+#  STEP 8 -- BUILD IT_SCRIPT PAYLOADS
+#  A.WebLink  -> WTIME 1000 / SCRIPT <url>  / ENTER
+#  B.Username -> WTIME 1000 / SCRIPT <user> / TAB
+#  C.Password -> WTIME 1000 / SCRIPT <pass> / ENTER
 # ============================================================
-$nl = "`n"
-
-$duckWebLink  = "DELAY 1000"       + $nl + "STRING $webLink"  + $nl + "ENTER"
-$duckUsername = "DELAY 1000"       + $nl + "STRING $username" + $nl + "TAB"
-$duckPassword = "DELAY 1000"       + $nl + "STRING $password" + $nl + "ENTER"
-
+$nl        = "`n"
 $subFolder = "$targetFolder/$folderName"
 
-$packetWebLink  = "FOLDER:$subFolder`nNAME:A.WebLink`nDATA:`n$duckWebLink`nEND_SCRIPT_SAVER`n"
-$packetUsername = "FOLDER:$subFolder`nNAME:B.Username`nDATA:`n$duckUsername`nEND_SCRIPT_SAVER`n"
-$packetPassword = "FOLDER:$subFolder`nNAME:C.Password`nDATA:`n$duckPassword`nEND_SCRIPT_SAVER`n"
+$itscriptWebLink  = "WTIME 1000" + $nl + "SCRIPT $webLink"  + $nl + "ENTER"
+$itscriptUsername = "WTIME 1000" + $nl + "SCRIPT $username" + $nl + "TAB"
+$itscriptPassword = "WTIME 1000" + $nl + "SCRIPT $password" + $nl + "ENTER"
 
-$bytesWebLink  = [System.Text.Encoding]::UTF8.GetBytes($packetWebLink)
-$bytesUsername = [System.Text.Encoding]::UTF8.GetBytes($packetUsername)
-$bytesPassword = [System.Text.Encoding]::UTF8.GetBytes($packetPassword)
+$bytesWebLink  = [System.Text.Encoding]::UTF8.GetBytes($itscriptWebLink)
+$bytesUsername = [System.Text.Encoding]::UTF8.GetBytes($itscriptUsername)
+$bytesPassword = [System.Text.Encoding]::UTF8.GetBytes($itscriptPassword)
 
-Write-Host "Packet sizes:" -ForegroundColor Cyan
+Write-Host "Payload sizes:" -ForegroundColor Cyan
 Write-Host "  A.WebLink  : $($bytesWebLink.Length) bytes"
 Write-Host "  B.Username : $($bytesUsername.Length) bytes"
 Write-Host "  C.Password : $($bytesPassword.Length) bytes"
+Write-Host "Protocol     : Chunked v55 (4096 B/chunk, ACK per chunk)" -ForegroundColor Cyan
+Write-Host "Baud rate    : 460800" -ForegroundColor Cyan
 Write-Host ""
 
 # ============================================================
-#  STEP 9 -- SEND (3 packets with pause between each)
+#  STEP 9 -- OPEN PORT
 # ============================================================
-Write-Host "Sending to IT-Tool..." -ForegroundColor Yellow
-Write-Host ""
+Write-Host "Connecting to IT-Tool on $comPort @ 460800..." -ForegroundColor Yellow
 
-$port = New-Object System.IO.Ports.SerialPort $comPort, 115200, None, 8, One
+$port = New-Object System.IO.Ports.SerialPort $comPort, 460800, None, 8, One
 $port.NewLine      = "`n"
 $port.DtrEnable    = $false
 $port.RtsEnable    = $false
 $port.Encoding     = [System.Text.Encoding]::UTF8
-$port.ReadTimeout  = 3000
-$port.WriteTimeout = 5000
+$port.ReadTimeout  = 10000
+$port.WriteTimeout = 10000
+$port.Open()
 
-# Retry open: Windows CDC driver may take a moment to release after reset
-$openOk = $false
-for ($attempt = 1; $attempt -le 5; $attempt++) {
-    try {
-        $port.Open()
-        $openOk = $true
-        break
-    } catch {
-        Write-Host "  Port busy, retrying ($attempt/5)..." -ForegroundColor Yellow
-        Start-Sleep -Milliseconds 1000
+Start-Sleep -Milliseconds 300
+
+$CHUNK_SIZE  = 4096
+$ACK_TIMEOUT = 10000
+$MAX_RETRIES = 3
+
+# ============================================================
+#  STEP 10 -- SEND A.WebLink
+# ============================================================
+Write-Host "Sending A.WebLink..." -ForegroundColor Yellow
+
+$txBytes  = $bytesWebLink
+$txName   = "A.WebLink"
+$txTotal  = $txBytes.Length
+
+$txHeader      = "SS_BEGIN:${subFolder}|${txName}|${txTotal}`n"
+$txHeaderBytes = [System.Text.Encoding]::UTF8.GetBytes($txHeader)
+$port.BaseStream.Write($txHeaderBytes, 0, $txHeaderBytes.Length)
+$port.BaseStream.Flush()
+
+Write-Host "  Waiting for SS_READY..." -ForegroundColor Yellow
+$txReady    = ""
+$txDeadline = (Get-Date).AddMilliseconds($port.ReadTimeout)
+try {
+    while ((Get-Date) -lt $txDeadline) {
+        $txLine = $port.ReadLine().Trim()
+        if ($txLine -eq "SS_READY")          { $txReady = $txLine; break }
+        if ($txLine.StartsWith("SS:ERR:"))   { $txReady = $txLine; break }
+        Write-Host "    [serial noise] $txLine" -ForegroundColor DarkGray
     }
-}
-if (-not $openOk) {
-    Write-Host "ERROR: Could not open $comPort after 5 attempts." -ForegroundColor Red
-    Write-Host "Make sure no other program is using the port." -ForegroundColor Red
+} catch { }
+
+if ($txReady -ne "SS_READY") {
+    $port.Close()
+    Write-Host ""
+    if ($txReady -eq "") {
+        Write-Host "ERROR: IT-Tool did not respond to SS_BEGIN for $txName (timeout)." -ForegroundColor Red
+        Write-Host "  Make sure IT-Tool is on ReadyUSB > Script_Saver > Script_Saver screen." -ForegroundColor Yellow
+    } else {
+        Write-Host "ERROR: $txName -- Unexpected response: '$txReady'" -ForegroundColor Red
+    }
     Read-Host "Press ENTER to close"
     exit
 }
+Write-Host "  IT-Tool ready. Transferring $txName..." -ForegroundColor Green
 
-Start-Sleep -Milliseconds 500
+$txOffset   = 0
+$txChunkNum = 0
+while ($txOffset -lt $txTotal) {
+    $txRemaining   = $txTotal - $txOffset
+    $txToSend      = [Math]::Min($CHUNK_SIZE, $txRemaining)
+    $txChunkNum++
+    $txIsLast      = ($txOffset + $txToSend -ge $txTotal)
 
-$chunkSize = 128
+    $txSent = $false
+    for ($txRetry = 1; $txRetry -le $MAX_RETRIES; $txRetry++) {
+        try {
+            $port.BaseStream.Write($txBytes, $txOffset, $txToSend)
+            $port.BaseStream.Flush()
 
-function Send-Packet {
-    param([byte[]]$bytes, [string]$label)
-    Write-Host "  Sending $label..." -ForegroundColor Cyan
-    $offset = 0
-    $total  = $bytes.Length
-    while ($offset -lt $total) {
-        $toSend = [Math]::Min($chunkSize, $total - $offset)
-        $port.BaseStream.Write($bytes, $offset, $toSend)
-        $port.BaseStream.Flush()
-        $offset += $toSend
-        $pct = [Math]::Round(($offset / $total) * 100)
-        Write-Host "    $offset / $total bytes ($pct%)"
-        Start-Sleep -Milliseconds 80
+            if ($txIsLast) {
+                $txOffset += $txToSend
+                $txPct = 100
+                Write-Host "`r  [##################################################] $txPct%  $([Math]::Round($txOffset/1024,1))/$([Math]::Round($txTotal/1024,1)) KB  " -NoNewline -ForegroundColor Green
+                $txSent = $true
+                break
+            }
+
+            $port.ReadTimeout = $ACK_TIMEOUT
+            $txAck            = ""
+            $txAckDeadline    = (Get-Date).AddMilliseconds($ACK_TIMEOUT)
+            while ((Get-Date) -lt $txAckDeadline) {
+                $txAckLine = $port.ReadLine().Trim()
+                if ($txAckLine.StartsWith("ACK:") -or $txAckLine.StartsWith("SS:")) { $txAck = $txAckLine; break }
+            }
+
+            if ($txAck -eq "ACK:$txChunkNum") {
+                $txOffset += $txToSend
+                $txPct = [Math]::Round(($txOffset / $txTotal) * 100)
+                Write-Host "`r  [$("$("█" * [int]($txPct/2))$("-" * (50-[int]($txPct/2)))")] $txPct%  $([Math]::Round($txOffset/1024,1))/$([Math]::Round($txTotal/1024,1)) KB  " -NoNewline -ForegroundColor Green
+                $txSent = $true
+                break
+            } elseif ($txAck.StartsWith("SS:ERR:")) {
+                $port.Close()
+                Write-Host ""
+                Write-Host "ERROR from IT-Tool: $txAck" -ForegroundColor Red
+                Read-Host "Press ENTER to close"
+                exit
+            } else {
+                Write-Host "`n  Unexpected ACK '$txAck' (expected ACK:$txChunkNum), retry $txRetry..." -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "`n  Chunk $txChunkNum timeout (retry $txRetry/$MAX_RETRIES)..." -ForegroundColor Yellow
+            if ($txRetry -eq $MAX_RETRIES) {
+                $port.Close()
+                Write-Host ""
+                Write-Host "ERROR: Transfer failed after $MAX_RETRIES retries on chunk $txChunkNum." -ForegroundColor Red
+                Read-Host "Press ENTER to close"
+                exit
+            }
+            Start-Sleep -Milliseconds 500
+        }
     }
-    Write-Host "  $label sent." -ForegroundColor Green
-    Start-Sleep -Milliseconds 1800
-    Write-Host ""
+
+    if (-not $txSent) {
+        $port.Close()
+        Write-Host ""
+        Write-Host "ERROR: Could not confirm chunk $txChunkNum." -ForegroundColor Red
+        Read-Host "Press ENTER to close"
+        exit
+    }
 }
 
-Send-Packet -bytes $bytesWebLink  -label "A.WebLink"
-Send-Packet -bytes $bytesUsername -label "B.Username"
-Send-Packet -bytes $bytesPassword -label "C.Password"
+Write-Host ""
+Write-Host "  Finalizing $txName..." -ForegroundColor Yellow
+$txEndBytes = [System.Text.Encoding]::UTF8.GetBytes("SS_END`n")
+$port.BaseStream.Write($txEndBytes, 0, $txEndBytes.Length)
+$port.BaseStream.Flush()
 
+$port.ReadTimeout  = 15000
+$txFinalResp       = ""
+try {
+    $txFinalDeadline = (Get-Date).AddMilliseconds(15000)
+    while ((Get-Date) -lt $txFinalDeadline) {
+        $txFl = $port.ReadLine().Trim()
+        if ($txFl.StartsWith("SS:OK:") -or $txFl.StartsWith("SS:ERR:")) { $txFinalResp = $txFl; break }
+    }
+} catch { }
+
+if ($txFinalResp -eq "") {
+    $port.Close()
+    Write-Host ""
+    Write-Host "ERROR: No final response from IT-Tool for $txName (SD write timeout?)." -ForegroundColor Red
+    Read-Host "Press ENTER to close"
+    exit
+} elseif ($txFinalResp.StartsWith("SS:ERR:")) {
+    $port.Close()
+    Write-Host ""
+    Write-Host "ERROR from IT-Tool: $txFinalResp" -ForegroundColor Red
+    Read-Host "Press ENTER to close"
+    exit
+}
+Write-Host "  $txName saved OK -> $($txFinalResp.Substring(6))" -ForegroundColor Green
+Write-Host ""
+
+Start-Sleep -Milliseconds 1500
+
+# ============================================================
+#  STEP 11 -- SEND B.Username
+# ============================================================
+Write-Host "Sending B.Username..." -ForegroundColor Yellow
+
+$txBytes  = $bytesUsername
+$txName   = "B.Username"
+$txTotal  = $txBytes.Length
+
+$txHeader      = "SS_BEGIN:${subFolder}|${txName}|${txTotal}`n"
+$txHeaderBytes = [System.Text.Encoding]::UTF8.GetBytes($txHeader)
+$port.BaseStream.Write($txHeaderBytes, 0, $txHeaderBytes.Length)
+$port.BaseStream.Flush()
+
+Write-Host "  Waiting for SS_READY..." -ForegroundColor Yellow
+$txReady    = ""
+$txDeadline = (Get-Date).AddMilliseconds($port.ReadTimeout)
+try {
+    while ((Get-Date) -lt $txDeadline) {
+        $txLine = $port.ReadLine().Trim()
+        if ($txLine -eq "SS_READY")          { $txReady = $txLine; break }
+        if ($txLine.StartsWith("SS:ERR:"))   { $txReady = $txLine; break }
+        Write-Host "    [serial noise] $txLine" -ForegroundColor DarkGray
+    }
+} catch { }
+
+if ($txReady -ne "SS_READY") {
+    $port.Close()
+    Write-Host ""
+    if ($txReady -eq "") {
+        Write-Host "ERROR: IT-Tool did not respond to SS_BEGIN for $txName (timeout)." -ForegroundColor Red
+        Write-Host "  Make sure IT-Tool is on ReadyUSB > Script_Saver > Script_Saver screen." -ForegroundColor Yellow
+    } else {
+        Write-Host "ERROR: $txName -- Unexpected response: '$txReady'" -ForegroundColor Red
+    }
+    Read-Host "Press ENTER to close"
+    exit
+}
+Write-Host "  IT-Tool ready. Transferring $txName..." -ForegroundColor Green
+
+$txOffset   = 0
+$txChunkNum = 0
+while ($txOffset -lt $txTotal) {
+    $txRemaining   = $txTotal - $txOffset
+    $txToSend      = [Math]::Min($CHUNK_SIZE, $txRemaining)
+    $txChunkNum++
+    $txIsLast      = ($txOffset + $txToSend -ge $txTotal)
+
+    $txSent = $false
+    for ($txRetry = 1; $txRetry -le $MAX_RETRIES; $txRetry++) {
+        try {
+            $port.BaseStream.Write($txBytes, $txOffset, $txToSend)
+            $port.BaseStream.Flush()
+
+            if ($txIsLast) {
+                $txOffset += $txToSend
+                $txPct = 100
+                Write-Host "`r  [##################################################] $txPct%  $([Math]::Round($txOffset/1024,1))/$([Math]::Round($txTotal/1024,1)) KB  " -NoNewline -ForegroundColor Green
+                $txSent = $true
+                break
+            }
+
+            $port.ReadTimeout = $ACK_TIMEOUT
+            $txAck            = ""
+            $txAckDeadline    = (Get-Date).AddMilliseconds($ACK_TIMEOUT)
+            while ((Get-Date) -lt $txAckDeadline) {
+                $txAckLine = $port.ReadLine().Trim()
+                if ($txAckLine.StartsWith("ACK:") -or $txAckLine.StartsWith("SS:")) { $txAck = $txAckLine; break }
+            }
+
+            if ($txAck -eq "ACK:$txChunkNum") {
+                $txOffset += $txToSend
+                $txPct = [Math]::Round(($txOffset / $txTotal) * 100)
+                Write-Host "`r  [$("$("█" * [int]($txPct/2))$("-" * (50-[int]($txPct/2)))")] $txPct%  $([Math]::Round($txOffset/1024,1))/$([Math]::Round($txTotal/1024,1)) KB  " -NoNewline -ForegroundColor Green
+                $txSent = $true
+                break
+            } elseif ($txAck.StartsWith("SS:ERR:")) {
+                $port.Close()
+                Write-Host ""
+                Write-Host "ERROR from IT-Tool: $txAck" -ForegroundColor Red
+                Read-Host "Press ENTER to close"
+                exit
+            } else {
+                Write-Host "`n  Unexpected ACK '$txAck' (expected ACK:$txChunkNum), retry $txRetry..." -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "`n  Chunk $txChunkNum timeout (retry $txRetry/$MAX_RETRIES)..." -ForegroundColor Yellow
+            if ($txRetry -eq $MAX_RETRIES) {
+                $port.Close()
+                Write-Host ""
+                Write-Host "ERROR: Transfer failed after $MAX_RETRIES retries on chunk $txChunkNum." -ForegroundColor Red
+                Read-Host "Press ENTER to close"
+                exit
+            }
+            Start-Sleep -Milliseconds 500
+        }
+    }
+
+    if (-not $txSent) {
+        $port.Close()
+        Write-Host ""
+        Write-Host "ERROR: Could not confirm chunk $txChunkNum." -ForegroundColor Red
+        Read-Host "Press ENTER to close"
+        exit
+    }
+}
+
+Write-Host ""
+Write-Host "  Finalizing $txName..." -ForegroundColor Yellow
+$txEndBytes = [System.Text.Encoding]::UTF8.GetBytes("SS_END`n")
+$port.BaseStream.Write($txEndBytes, 0, $txEndBytes.Length)
+$port.BaseStream.Flush()
+
+$port.ReadTimeout  = 15000
+$txFinalResp       = ""
+try {
+    $txFinalDeadline = (Get-Date).AddMilliseconds(15000)
+    while ((Get-Date) -lt $txFinalDeadline) {
+        $txFl = $port.ReadLine().Trim()
+        if ($txFl.StartsWith("SS:OK:") -or $txFl.StartsWith("SS:ERR:")) { $txFinalResp = $txFl; break }
+    }
+} catch { }
+
+if ($txFinalResp -eq "") {
+    $port.Close()
+    Write-Host ""
+    Write-Host "ERROR: No final response from IT-Tool for $txName (SD write timeout?)." -ForegroundColor Red
+    Read-Host "Press ENTER to close"
+    exit
+} elseif ($txFinalResp.StartsWith("SS:ERR:")) {
+    $port.Close()
+    Write-Host ""
+    Write-Host "ERROR from IT-Tool: $txFinalResp" -ForegroundColor Red
+    Read-Host "Press ENTER to close"
+    exit
+}
+Write-Host "  $txName saved OK -> $($txFinalResp.Substring(6))" -ForegroundColor Green
+Write-Host ""
+
+Start-Sleep -Milliseconds 1500
+
+# ============================================================
+#  STEP 12 -- SEND C.Password
+# ============================================================
+Write-Host "Sending C.Password..." -ForegroundColor Yellow
+
+$txBytes  = $bytesPassword
+$txName   = "C.Password"
+$txTotal  = $txBytes.Length
+
+$txHeader      = "SS_BEGIN:${subFolder}|${txName}|${txTotal}`n"
+$txHeaderBytes = [System.Text.Encoding]::UTF8.GetBytes($txHeader)
+$port.BaseStream.Write($txHeaderBytes, 0, $txHeaderBytes.Length)
+$port.BaseStream.Flush()
+
+Write-Host "  Waiting for SS_READY..." -ForegroundColor Yellow
+$txReady    = ""
+$txDeadline = (Get-Date).AddMilliseconds($port.ReadTimeout)
+try {
+    while ((Get-Date) -lt $txDeadline) {
+        $txLine = $port.ReadLine().Trim()
+        if ($txLine -eq "SS_READY")          { $txReady = $txLine; break }
+        if ($txLine.StartsWith("SS:ERR:"))   { $txReady = $txLine; break }
+        Write-Host "    [serial noise] $txLine" -ForegroundColor DarkGray
+    }
+} catch { }
+
+if ($txReady -ne "SS_READY") {
+    $port.Close()
+    Write-Host ""
+    if ($txReady -eq "") {
+        Write-Host "ERROR: IT-Tool did not respond to SS_BEGIN for $txName (timeout)." -ForegroundColor Red
+        Write-Host "  Make sure IT-Tool is on ReadyUSB > Script_Saver > Script_Saver screen." -ForegroundColor Yellow
+    } else {
+        Write-Host "ERROR: $txName -- Unexpected response: '$txReady'" -ForegroundColor Red
+    }
+    Read-Host "Press ENTER to close"
+    exit
+}
+Write-Host "  IT-Tool ready. Transferring $txName..." -ForegroundColor Green
+
+$txOffset   = 0
+$txChunkNum = 0
+while ($txOffset -lt $txTotal) {
+    $txRemaining   = $txTotal - $txOffset
+    $txToSend      = [Math]::Min($CHUNK_SIZE, $txRemaining)
+    $txChunkNum++
+    $txIsLast      = ($txOffset + $txToSend -ge $txTotal)
+
+    $txSent = $false
+    for ($txRetry = 1; $txRetry -le $MAX_RETRIES; $txRetry++) {
+        try {
+            $port.BaseStream.Write($txBytes, $txOffset, $txToSend)
+            $port.BaseStream.Flush()
+
+            if ($txIsLast) {
+                $txOffset += $txToSend
+                $txPct = 100
+                Write-Host "`r  [##################################################] $txPct%  $([Math]::Round($txOffset/1024,1))/$([Math]::Round($txTotal/1024,1)) KB  " -NoNewline -ForegroundColor Green
+                $txSent = $true
+                break
+            }
+
+            $port.ReadTimeout = $ACK_TIMEOUT
+            $txAck            = ""
+            $txAckDeadline    = (Get-Date).AddMilliseconds($ACK_TIMEOUT)
+            while ((Get-Date) -lt $txAckDeadline) {
+                $txAckLine = $port.ReadLine().Trim()
+                if ($txAckLine.StartsWith("ACK:") -or $txAckLine.StartsWith("SS:")) { $txAck = $txAckLine; break }
+            }
+
+            if ($txAck -eq "ACK:$txChunkNum") {
+                $txOffset += $txToSend
+                $txPct = [Math]::Round(($txOffset / $txTotal) * 100)
+                Write-Host "`r  [$("$("█" * [int]($txPct/2))$("-" * (50-[int]($txPct/2)))")] $txPct%  $([Math]::Round($txOffset/1024,1))/$([Math]::Round($txTotal/1024,1)) KB  " -NoNewline -ForegroundColor Green
+                $txSent = $true
+                break
+            } elseif ($txAck.StartsWith("SS:ERR:")) {
+                $port.Close()
+                Write-Host ""
+                Write-Host "ERROR from IT-Tool: $txAck" -ForegroundColor Red
+                Read-Host "Press ENTER to close"
+                exit
+            } else {
+                Write-Host "`n  Unexpected ACK '$txAck' (expected ACK:$txChunkNum), retry $txRetry..." -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "`n  Chunk $txChunkNum timeout (retry $txRetry/$MAX_RETRIES)..." -ForegroundColor Yellow
+            if ($txRetry -eq $MAX_RETRIES) {
+                $port.Close()
+                Write-Host ""
+                Write-Host "ERROR: Transfer failed after $MAX_RETRIES retries on chunk $txChunkNum." -ForegroundColor Red
+                Read-Host "Press ENTER to close"
+                exit
+            }
+            Start-Sleep -Milliseconds 500
+        }
+    }
+
+    if (-not $txSent) {
+        $port.Close()
+        Write-Host ""
+        Write-Host "ERROR: Could not confirm chunk $txChunkNum." -ForegroundColor Red
+        Read-Host "Press ENTER to close"
+        exit
+    }
+}
+
+Write-Host ""
+Write-Host "  Finalizing $txName..." -ForegroundColor Yellow
+$txEndBytes = [System.Text.Encoding]::UTF8.GetBytes("SS_END`n")
+$port.BaseStream.Write($txEndBytes, 0, $txEndBytes.Length)
+$port.BaseStream.Flush()
+
+$port.ReadTimeout  = 15000
+$txFinalResp       = ""
+try {
+    $txFinalDeadline = (Get-Date).AddMilliseconds(15000)
+    while ((Get-Date) -lt $txFinalDeadline) {
+        $txFl = $port.ReadLine().Trim()
+        if ($txFl.StartsWith("SS:OK:") -or $txFl.StartsWith("SS:ERR:")) { $txFinalResp = $txFl; break }
+    }
+} catch { }
+
+if ($txFinalResp -eq "") {
+    $port.Close()
+    Write-Host ""
+    Write-Host "ERROR: No final response from IT-Tool for $txName (SD write timeout?)." -ForegroundColor Red
+    Read-Host "Press ENTER to close"
+    exit
+} elseif ($txFinalResp.StartsWith("SS:ERR:")) {
+    $port.Close()
+    Write-Host ""
+    Write-Host "ERROR from IT-Tool: $txFinalResp" -ForegroundColor Red
+    Read-Host "Press ENTER to close"
+    exit
+}
+Write-Host "  $txName saved OK -> $($txFinalResp.Substring(6))" -ForegroundColor Green
+Write-Host ""
+
+# ============================================================
+#  DONE
+# ============================================================
 $port.Close()
 
-Write-Host "Done!" -ForegroundColor Green
-Write-Host "Folder '$folderName' saved inside ReadyUSB > $targetFolder" -ForegroundColor Green
+Write-Host "======================================" -ForegroundColor Green
+Write-Host "   ALL SCRIPTS SAVED" -ForegroundColor Green
+Write-Host "   Folder : $folderName" -ForegroundColor Green
+Write-Host "   Dest   : ReadyUSB > $targetFolder" -ForegroundColor Green
+Write-Host "======================================" -ForegroundColor Green
 Write-Host "  A.WebLink  -> $webLink" -ForegroundColor White
 Write-Host "  B.Username -> $username" -ForegroundColor White
 Write-Host "  C.Password -> [saved]" -ForegroundColor White
