@@ -192,7 +192,7 @@ Write-Host ""
 #  STEP 6 — PASTE YOUR SCRIPT
 # ============================================================
 Write-Host "Paste your script below." -ForegroundColor Cyan
-Write-Host "When finished type exactly:  ITTOOL  and double press ENTER" -ForegroundColor Yellow
+Write-Host "When finished, press ENTER twice, type exactly ITTOOL, and press ENTER to finish." -ForegroundColor Yellow
 Write-Host ""
 
 $lines = New-Object System.Collections.Generic.List[string]
