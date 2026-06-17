@@ -1,18 +1,19 @@
-"""
-  =================================================================
-  IT-Tool by SalgadoTech
-  Script: ccpu.py
-  ScriptID: ST-WIN-0056-PY
-  Version: 1.0
-  Date: 2025-05-27
-  Category: Windows / Linux > Hardware
-  Description: Live CPU monitor - refreshes every 2s.
-               Per-core usage bars, frequency,
-               and top 20 processes by CPU. Press Q or Ctrl+C.
-  (c) 2025 SalgadoTech - All Rights Reserved
-  Unauthorized distribution prohibited
-  =================================================================
-"""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# ============================================================================
+#  IT-Tool by SalgadoTech
+#  Script: ccpu.py
+#  ScriptID: ST-WIN-0056-PY
+#  Version: 1.0
+#  Date: 2025-05-27
+#  Category: Windows / Linux > Hardware
+#  Description: Live CPU monitor - refreshes every 2s.
+#               Per-core usage bars, frequency,
+#               and top 20 processes by CPU. Press Q or Ctrl+C.
+#  (c) 2025 SalgadoTech - All Rights Reserved
+#  Unauthorized distribution prohibited
+#  Encoding: UTF-8 (no BOM)
+# ============================================================================
 
 import psutil
 import os

@@ -1,18 +1,19 @@
-"""
-  =================================================================
-  IT-Tool by SalgadoTech
-  Script: 55.Check_ram.py
-  ScriptID: ST-WIN-0055-PY
-  Version: 3.0
-  Date: 2025-05-27
-  Category: Windows / Linux > Hardware
-  Description: Live RAM monitor - refreshes every 2s.
-               Top 30 processes sorted by consumption with
-               relative visual bars. Press Q or Ctrl+C to exit.
-  (c) 2025 SalgadoTech - All Rights Reserved
-  Unauthorized distribution prohibited
-  =================================================================
-"""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# ============================================================================
+#  IT-Tool by SalgadoTech
+#  Script: 55.Check_ram.py
+#  ScriptID: ST-WIN-0055-PY
+#  Version: 3.0
+#  Date: 2025-05-27
+#  Category: Windows / Linux > Hardware
+#  Description: Live RAM monitor - refreshes every 2s.
+#               Top 30 processes sorted by consumption with
+#               relative visual bars. Press Q or Ctrl+C to exit.
+#  (c) 2025 SalgadoTech - All Rights Reserved
+#  Unauthorized distribution prohibited
+#  Encoding: UTF-8 (no BOM)
+# ============================================================================
 
 import psutil
 import os
