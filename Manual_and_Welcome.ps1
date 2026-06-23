@@ -2,8 +2,11 @@ Set-ExecutionPolicy Bypass -Scope CurrentUser -Force | Out-Null
 
 $nl = [Environment]::NewLine
 
-# Download PDF to Desktop
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/IT-Tool-by-SalgadoTech/ittool-External_Tools/main/IT-Tool%20Manual.pdf" -OutFile "$env:USERPROFILE\Desktop\IT-Tool_Manual.pdf"
+# Download PDF to Documents\ITTOOL
+$PdfPath = [System.IO.Path]::Combine([Environment]::GetFolderPath('MyDocuments'),'ITTOOL','IT-Tool_Manual.pdf')
+$PdfDir  = Split-Path $PdfPath
+if(-not(Test-Path $PdfDir)){New-Item -ItemType Directory -Path $PdfDir -Force | Out-Null}
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/IT-Tool-by-SalgadoTech/ittool-External_Tools/main/IT-Tool%20Manual.pdf" -OutFile $PdfPath
 
 # Download Logo
 $LogoUrl  = "https://raw.githubusercontent.com/IT-Tool-by-SalgadoTech/ittool-External_Tools/main/LOGO%20VIDEO%20black.png"
@@ -58,7 +61,7 @@ try {
     [void]$form.ShowDialog()
 
     # Open PDF
-    Start-Process "$env:USERPROFILE\Desktop\IT-Tool_Manual.pdf"
+    Start-Process $PdfPath
 
 } catch {}
 
